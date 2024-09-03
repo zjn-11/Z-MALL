@@ -17,3 +17,20 @@ buildNumber.properties
 .classpath
 
 .idea/*.*
+
+target/
+logs/
+cloud-iaas/target
+gateway-server/target
+auth-server/target
+zjn-common/target
+common-base/target
+common-core/target
+zjn-business/target
+cart-service/target
+manager-service/target
+member-service/target
+order-service/target
+product-service/target
+search-service/target
+store-service/target

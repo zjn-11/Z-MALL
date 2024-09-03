@@ -1,0 +1,33 @@
+#server:
+#  port: 8080
+spring:
+  application:
+    name: gateway-server
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: 192.168.121.128:8848
+#      username: nacos
+#      password: nacos
+      discovery:
+        namespace: ae336f04-3449-4fec-a1fc-ed803fba6e68
+        group: A_GROUP
+        service: ${spring.application.name}
+      config:
+        file-extension: yaml
+        namespace: ${spring.cloud.nacos.discovery.namespace}
+        group: ${spring.cloud.nacos.discovery.group}
+
+#server:
+#  port: 8080
+#spring:
+#  cloud:
+#    gateway:
+#      discovery:
+#        locator:
+#          enabled: true # 开启gateway动态路由
+#  redis:
+#    host: 192.168.121.128
+#    port: 6379
+
