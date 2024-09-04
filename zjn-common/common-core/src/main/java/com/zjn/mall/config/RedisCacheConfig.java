@@ -25,6 +25,6 @@ public class RedisCacheConfig {
                 .SerializationPair.fromSerializer(RedisSerializer.json())) // value的序列化
                 .entryTtl(Duration.ofDays(7)) // 默认时间为7天
                 .disableCachingNullValues(); // redis的value禁止使用空值
-        return redisCacheConfiguration();
+        return cacheConfig;
     }
 }

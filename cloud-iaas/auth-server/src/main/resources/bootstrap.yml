@@ -19,27 +19,16 @@ spring:
           - datasource.yaml
   profiles:
     active: dev
+
+
+
+#spring:
 #  datasource:
 #    druid:
 #      url: jdbc:mysql://192.168.121.128:3306/mall?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
 #      driver-class-name: com.mysql.cj.jdbc.Driver
 #      username: root
 #      password: 123
-#mybatis-plus:
-#  configuration:
-#    default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
-#  global-config:
-#    db-config:
-#      update-strategy: not_null
-#      id-type: auto
-
-#spring:
-#  datasource:
-#    druid:
-#      url: jdbc:mysql://${zjn.db.host}:3306/mall?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
-#      driver-class-name: ${zjn.db.driver}
-#      username: root
-#      password: ${zjn.db.pw}
 #  redis:
 #    host: 192.168.121.128
 #    port: 6379
@@ -51,6 +40,13 @@ spring:
 #  jackson:
 #    date-format: yyyy-MM-dd HH:mm:ss
 #    time-zone: GMT+8
+#mybatis-plus:
+#  configuration:
+#    default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
+#  global-config:
+#    db-config:
+#      update-strategy: not_null
+#      id-type: auto
 #mybatis-plus:
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

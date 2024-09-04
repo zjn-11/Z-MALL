@@ -28,8 +28,7 @@ public class FeignInterceptor implements RequestInterceptor {
             }
         }
 
-        // 从定时器过来的请求是没有token的
-        // TODO 需要给这里设置一个永不过期的token
-        requestTemplate.header(AuthConstants.AUTHORIZATION, AuthConstants.BEARER +  ""/* TODO token */);
+        // 从定时器过来的请求是没有token的，所以可以设置一个永不过时的token
+        requestTemplate.header(AuthConstants.AUTHORIZATION, AuthConstants.BEARER + "3c10d34a-2511-4800-993d-df809fd464f5");
     }
 }
