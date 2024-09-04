@@ -167,7 +167,7 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
     public void returnResult(HttpServletResponse response, Result<?> result) throws IOException {
         // 设置响应信息
-        response.setContentType(HttpConstants.CONTENT_TYPE);
+        response.setContentType(HttpConstants.APPLICATION_JSON);
         response.setCharacterEncoding(HttpConstants.UTF_8);
         // 返回统一结果
         ObjectMapper objectMapper = new ObjectMapper();

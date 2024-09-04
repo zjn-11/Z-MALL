@@ -54,4 +54,9 @@ public interface AuthConstants {
      */
     Long TOKEN_TIME = 14400L;
 
+    /**
+     * 续签阈值（低于该时间就续签）: 1H
+     */
+    Long TOKEN_EXPIRE_THRESHOLD_TIME = 3600L;
+
 }
