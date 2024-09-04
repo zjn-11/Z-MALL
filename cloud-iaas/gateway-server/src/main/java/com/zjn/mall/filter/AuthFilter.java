@@ -1,5 +1,6 @@
 package com.zjn.mall.filter;
 
+import cn.hutool.core.text.AntPathMatcher;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +20,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -53,7 +53,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().toString();
         if (isExclude(path))
-            chain.filter(exchange);
+            return chain.filter(exchange);
 
         String token = null;
         String authorization = request.getHeaders().getFirst(AuthConstants.AUTHORIZATION);

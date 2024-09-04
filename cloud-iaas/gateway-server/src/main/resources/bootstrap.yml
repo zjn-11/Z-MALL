@@ -16,6 +16,11 @@ spring:
         file-extension: yaml
         namespace: ${spring.cloud.nacos.discovery.namespace}
         group: ${spring.cloud.nacos.discovery.group}
+zjn:
+  auth:
+    excludePaths:
+      - /**/doLogin
+      - /**/free
 
 #server:
 #  port: 8080
@@ -28,9 +33,5 @@ spring:
 #  redis:
 #    host: 192.168.121.128
 #    port: 6379
-zjn:
-  auth:
-    excludePaths:
-      - /doLogin
-      - /free
+
 

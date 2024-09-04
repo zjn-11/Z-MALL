@@ -1,0 +1,57 @@
+server:
+  port: 9999
+spring:
+  application:
+    name: auth-server
+  cloud:
+    nacos:
+      server-addr: 192.168.121.128:8848
+      discovery:
+        namespace: ae336f04-3449-4fec-a1fc-ed803fba6e68
+        group: A_GROUP
+        service: ${spring.application.name}
+      config:
+        file-extension: yaml
+        namespace: ${spring.cloud.nacos.discovery.namespace}
+        group: ${spring.cloud.nacos.discovery.group}
+        prefix: ${spring.application.name}
+        shared-configs:
+          - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+  profiles:
+    active: dev
+  datasource:
+    druid:
+      url: jdbc:mysql://192.168.121.128:3306/mall?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      username: root
+      password: 123
+mybatis-plus:
+  configuration:
+    default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
+  global-config:
+    db-config:
+      update-strategy: not_null
+      id-type: auto
+
+#spring:
+#  datasource:
+#    druid:
+#      url: jdbc:mysql://${zjn.db.host}:3306/mall?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+#      driver-class-name: ${zjn.db.driver}
+#      username: root
+#      password: ${zjn.db.pw}
+#  redis:
+#    host: 192.168.121.128
+#    port: 6379
+#  mvc:
+#    pathmatch:
+#      matching-strategy: ant_path_matcher
+#    format:
+#      date: yyyy-MM-dd HH:mm:ss
+#  jackson:
+#    date-format: yyyy-MM-dd HH:mm:ss
+#    time-zone: GMT+8
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#  mapper-locations: classpath*:/mapper/**/*.xml

@@ -27,12 +27,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-cloud.version>2021.0.1</spring-cloud.version>
         <spring-cloud-alibaba.version>2021.0.1.0</spring-cloud-alibaba.version>
-        <myabatis-plus.version>3.5.3.2</myabatis-plus.version>
-        <myabatis-plus-annotation.version>3.5.2</myabatis-plus-annotation.version>
+        <myabatis-plus.version>3.4.0</myabatis-plus.version>
+        <myabatis-plus-annotation.version>3.4.0</myabatis-plus-annotation.version>
         <mysql.version>8.0.32</mysql.version>
         <druid.version>1.2.18</druid.version>
         <hutool.version>5.8.2</hutool.version>
         <swagger.version>3.0.0</swagger.version>
+        <fast-json.version>1.2.80</fast-json.version>
     </properties>
 
     <dependencies>
@@ -96,6 +97,12 @@
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-boot-starter</artifactId>
                 <version>${swagger.version}</version>
+            </dependency>
+            <!--fastJSON-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fast-json.version}</version>
             </dependency>
         </dependencies>
 

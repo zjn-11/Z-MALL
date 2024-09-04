@@ -22,4 +22,36 @@ public interface AuthConstants {
      */
     String LOGIN_TOKEN_PREFIX = "login_token:";
 
+    /**
+     * 登录url
+     */
+    String LOGIN_URL = "/doLogin";
+
+    /**
+     * 登出url
+     */
+    String LOGOUT_URL = "/doLogout";
+
+    /**
+     * 登录类型
+     *
+     */
+    String LOGIN_TYPE = "loginType";
+
+    /**
+     * 登录类型值：商城后台管理
+     */
+    String SYS_USER_LOGIN = "sysUserLogin";
+
+    /**
+     * 登录类型值：商城会员管理
+     */
+    String MEMBER_LOGIN = "memberLogin";
+
+    /**
+     * 过期时间
+     * unit: s, 4个小时
+     */
+    Long TOKEN_TIME = 14400L;
+
 }
