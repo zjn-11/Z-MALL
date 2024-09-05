@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -80,6 +82,13 @@ public class SysMenu implements Serializable {
     @TableField(value = "order_num")
     @Schema(description="排序")
     private Integer orderNum;
+
+    /**
+     * 子节点集合
+     */
+    @TableField(exist = false)
+    @Schema(description = "子节点集合")
+    private Set<SysMenu> child;
 
     private static final long serialVersionUID = 1L;
 }

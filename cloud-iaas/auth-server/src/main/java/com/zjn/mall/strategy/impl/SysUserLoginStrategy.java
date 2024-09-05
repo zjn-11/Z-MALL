@@ -33,7 +33,7 @@ public class SysUserLoginStrategy implements LoginStrategy {
                 .eq(LoginSysUser::getUsername, username)
         );
         if (ObjectUtil.isNotNull(loginSysUser)) {
-            // 查询用户权限
+            // 查询用户操作权限
             Set<String> perms = loginSysUserMapper.selectPermsByUserId(loginSysUser.getUserId());
             SecurityUser securityUser = new SecurityUser();
             securityUser.setUserId(loginSysUser.getUserId());
