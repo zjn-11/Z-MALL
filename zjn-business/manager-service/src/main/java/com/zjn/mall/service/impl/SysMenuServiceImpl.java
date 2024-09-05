@@ -1,6 +1,8 @@
 package com.zjn.mall.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -19,6 +21,7 @@ import com.zjn.mall.service.SysMenuService;
 
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "com.zjn.mall.service.impl.SysMenuServiceImpl") // 还需要在方法上配置Cacheable
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService{
 
     private final SysMenuMapper sysMenuMapper;
@@ -29,6 +32,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
      * @return
      */
     @Override
+    @Cacheable(key = "#loginUserId") // 缓存用户菜单权限到redis中
     public Set<SysMenu> queryUserMenusListByUserId(Long loginUserId) {
         Set<SysMenu> sysMenus = sysMenuMapper.queryUserMenusListByUserId(loginUserId);
         // 根据菜单权限的所有根目录(parent_id = 0)，给出菜单权限的层级关系的树结构
