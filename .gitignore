@@ -1,0 +1,7 @@
+/cloud-iaas/auth-server/target/**
+
+.idea/*.*
+
+**/target/**
+logs/
+
