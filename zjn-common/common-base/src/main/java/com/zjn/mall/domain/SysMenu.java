@@ -84,11 +84,11 @@ public class SysMenu implements Serializable {
     private Integer orderNum;
 
     /**
-     * 子节点集合
+     * 子节点集合(用于存放当前菜单的子菜单）
      */
     @TableField(exist = false)
     @Schema(description = "子节点集合")
-    private Set<SysMenu> child;
+    private Set<SysMenu> list;
 
     private static final long serialVersionUID = 1L;
 }

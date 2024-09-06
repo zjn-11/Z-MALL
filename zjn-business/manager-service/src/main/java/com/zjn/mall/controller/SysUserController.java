@@ -1,5 +1,7 @@
 package com.zjn.mall.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.SysUser;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.SysUserService;
@@ -7,8 +9,11 @@ import com.zjn.mall.util.AuthUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -33,5 +38,21 @@ public class SysUserController {
         Long loginUserId = AuthUtils.getLoginUserId();
         SysUser sysUser = sysUserService.getById(loginUserId);
         return Result.success(sysUser);
+    }
+
+    @ApiOperation("多条件分页查询系统管理员")
+    @GetMapping("page")
+    @PreAuthorize("hasAnyAuthority('sys:user:page')")
+    public Result<Page<SysUser>> loadSysUserPage(@RequestParam Long current,
+                                                 @RequestParam Long size,
+                                                 @RequestParam(required = false) String username) {
+        // 创建分页对象
+        Page<SysUser> sysUserPage = new Page<>(current, size);
+        // 多条件分页查询系统管理员
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<SysUser>()
+                .like(StringUtils.hasText(username), SysUser::getUsername, username)
+                .orderByDesc(SysUser::getCreateTime);
+        sysUserPage = sysUserService.page(sysUserPage, queryWrapper);
+        return Result.success(sysUserPage);
     }
 }

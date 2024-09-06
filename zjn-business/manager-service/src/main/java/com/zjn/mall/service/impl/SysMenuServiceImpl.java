@@ -51,7 +51,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         // 从菜单集合中获取根节点集合
         Set<SysMenu> roots = menus.stream().filter(menu -> menu.getParentId().equals(parentId)).collect(Collectors.toSet());
         // 循环节点集合
-        roots.forEach(root -> root.setChild(transformTree(menus, root.getMenuId())));
+        roots.forEach(root -> root.setList(transformTree(menus, root.getMenuId())));
         return roots;
     }
 }
