@@ -1,9 +1,6 @@
 package com.zjn.mall.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
@@ -46,7 +43,7 @@ public class SysUser implements Serializable {
     /**
      * 密码
      */
-    @TableField(value = "`password`")
+    @TableField(value = "`password`", updateStrategy = FieldStrategy.NOT_EMPTY)
     @Schema(description="密码")
     private String password;
 

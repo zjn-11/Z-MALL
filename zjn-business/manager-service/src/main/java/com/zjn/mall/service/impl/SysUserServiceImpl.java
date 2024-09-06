@@ -75,7 +75,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                         .eq(SysUserRole::getUserId, sysUser.getUserId())
         );
         saveSysUserRole(sysUser);
-        // 修改管理员信息，密码有值则需要加密，如果没有则密码不变
+        // 修改管理员信息，密码有值则需要加密，如果没有则密码不变，还需要配置密码字段的updateStrategy，保证密码为空串时也不更新
         String newPassword = sysUser.getPassword();
         if (StringUtils.hasText(newPassword)) {
             sysUser.setPassword(bCryptPasswordEncoder.encode(newPassword));
@@ -97,6 +97,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUser.setCreateUserId(AuthUtils.getLoginUserId());
         sysUser.setCreateTime(new Date());
         sysUser.setShopId(1L);
+        sysUser.setPassword(bCryptPasswordEncoder.encode(sysUser.getPassword()));
         int countUser = sysUserMapper.insert(sysUser);
         // 新增管理员和角色关系
         if (countUser > 0) {
