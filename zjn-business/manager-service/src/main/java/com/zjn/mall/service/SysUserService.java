@@ -11,5 +11,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface SysUserService extends IService<SysUser>{
 
-
+    /**
+     * 新增管理员
+     *
+     * @param sysUser
+     * @return
+     */
+    Integer saveSysUser(SysUser sysUser);
 }

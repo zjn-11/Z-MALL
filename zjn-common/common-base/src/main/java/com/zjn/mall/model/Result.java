@@ -50,4 +50,16 @@ public class Result<T> implements Serializable {
         result.setData(null);
         return result;
     }
+
+    /**
+     * 处理用户操作
+     * @param flag
+     * @return
+     */
+    public static Result<String> handle(boolean flag) {
+        if (flag) {
+            return Result.success(null);
+        }
+        return Result.fail(BusinessEnum.OPERATION_FAIL);
+    }
 }

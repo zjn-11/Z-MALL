@@ -2,7 +2,10 @@ package com.zjn.mall.service;
 
 import com.zjn.mall.domain.SysRole;
 import com.baomidou.mybatisplus.extension.service.IService;
-    /**
+
+import java.util.List;
+
+/**
  * @ClassName SysRoleService
  * @author 张健宁
  * @Description TODO
@@ -12,4 +15,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface SysRoleService extends IService<SysRole>{
 
 
-}
+    /**
+     * 查询所有角色列表
+     * @return
+     */
+    List<SysRole> querySysRoleList();
+    }
