@@ -21,9 +21,15 @@ public interface SysUserService extends IService<SysUser>{
 
     /**
      * 通过id查询管理员信息
-     * 查询出对应的角色id集合
+     * 并存入：查询出对应的角色id集合
      * @param id
      * @return
      */
     SysUser querySysUserInfoById(Long id);
+
+    /**
+     * 修改管理员信息
+     * @return
+     */
+    Integer modifySysUserInfo(SysUser sysUser);
 }

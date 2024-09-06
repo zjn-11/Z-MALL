@@ -30,7 +30,7 @@ public class SysRoleController {
 
     @ApiOperation("查询系统所有角色")
     @GetMapping("list")
-    @PreAuthorize("hasAnyAuthority('sys:role:info')")
+    @PreAuthorize("hasAnyAuthority('sys:role:list')")
     public Result<List<SysRole>> loadSysRoleList() {
         List<SysRole> roleList = sysRoleService.querySysRoleList();
         return Result.success(roleList);
