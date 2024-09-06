@@ -18,4 +18,12 @@ public interface SysUserService extends IService<SysUser>{
      * @return
      */
     Integer saveSysUser(SysUser sysUser);
+
+    /**
+     * 通过id查询管理员信息
+     * 查询出对应的角色id集合
+     * @param id
+     * @return
+     */
+    SysUser querySysUserInfoById(Long id);
 }

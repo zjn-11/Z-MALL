@@ -60,4 +60,12 @@ public class SysUserController {
         Integer count = sysUserService.saveSysUser(sysUser);
         return Result.handle(count > 0);
     }
+
+    @ApiOperation("根据id查询系统管理员信息")
+    @GetMapping("info/{id}")
+    @PreAuthorize("hasAnyAuthority('sys:user:info')")
+    public Result<SysUser> loadSysUserInfoById(@PathVariable Long id) {
+        SysUser sysUser = sysUserService.querySysUserInfoById(id);
+        return Result.success(sysUser);
+    }
 }

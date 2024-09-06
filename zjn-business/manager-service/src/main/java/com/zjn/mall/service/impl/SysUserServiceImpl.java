@@ -1,6 +1,7 @@
 package com.zjn.mall.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zjn.mall.domain.SysUserRole;
 import com.zjn.mall.mapper.SysUserRoleMapper;
 import com.zjn.mall.service.SysUserRoleService;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName SysUserServiceImpl
@@ -30,6 +32,29 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     private final SysUserMapper sysUserMapper;
     private final SysUserRoleService sysUserRoleService;
+    private final SysUserRoleMapper sysUserRoleMapper;
+
+    /**
+     * 通过id查询管理员信息
+     * 查询出对应的角色id集合
+     * @param id
+     * @return
+     */
+    @Override
+    public SysUser querySysUserInfoById(Long id) {
+        // 管理员信息
+        SysUser sysUser = sysUserMapper.selectById(id);
+        // 根据管理员id查询角色
+        List<SysUserRole> sysUserRoles = sysUserRoleMapper.selectList(
+                new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, id)
+        );
+        if (CollectionUtil.isNotEmpty(sysUserRoles) && sysUserRoles.size() != 0) {
+//            sysUserRoles.forEach(sysUserRole -> sysUser.getRoleIdList().add(sysUserRole.getRoleId()));
+            List<Long> roleIdList = sysUserRoles.stream().map(SysUserRole::getRoleId).collect(Collectors.toList());
+            sysUser.setRoleIdList(roleIdList);
+        }
+        return sysUser;
+    }
 
     /**
      * 新增管理员
