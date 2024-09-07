@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,7 +31,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @TableName(value = "sys_role")
 public class SysRole implements Serializable {
-    @TableId(value = "role_id", type = IdType.INPUT)
+    @TableId(value = "role_id", type = IdType.AUTO)
     @Schema(description="")
     private Long roleId;
 
@@ -60,6 +62,13 @@ public class SysRole implements Serializable {
     @TableField(value = "create_time")
     @Schema(description="创建时间")
     private Date createTime;
+
+    /**
+     * 用于新增角色时，存放权限id
+     */
+    @TableField(exist = false)
+    @Schema(description = "权限id集合")
+    private List<Long> menuIdList;
 
     private static final long serialVersionUID = 1L;
 }

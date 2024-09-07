@@ -3,6 +3,7 @@ package com.zjn.mall.service;
 import com.zjn.mall.domain.SysMenu;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -15,5 +16,7 @@ import java.util.Set;
 public interface SysMenuService extends IService<SysMenu>{
 
 
-        Set<SysMenu> queryUserMenusListByUserId(Long loginUserId);
-    }
+    Set<SysMenu> queryUserMenusListByUserId(Long loginUserId);
+
+    List<SysMenu> loadAllSysMenuList();
+}

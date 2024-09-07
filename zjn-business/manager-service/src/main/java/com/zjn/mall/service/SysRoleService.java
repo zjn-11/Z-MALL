@@ -20,4 +20,6 @@ public interface SysRoleService extends IService<SysRole>{
      * @return
      */
     List<SysRole> querySysRoleList();
-    }
+
+    Boolean saveSysRole(SysRole sysRole);
+}

@@ -1,10 +1,12 @@
 package com.zjn.mall.service.impl;
 
+import com.zjn.mall.constants.ManagerConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,16 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         Set<SysMenu> sysMenus = sysMenuMapper.queryUserMenusListByUserId(loginUserId);
         // 根据菜单权限的所有根目录(parent_id = 0)，给出菜单权限的层级关系的树结构
         return transformTree(sysMenus, 0L);
+    }
+
+    /**
+     * 查询系统所有权限集合
+     * @return
+     */
+    @Override
+    @Cacheable(key = ManagerConstants.SYS_ALL_MENU_KEY)
+    public List<SysMenu> loadAllSysMenuList() {
+        return sysMenuMapper.selectList(null);
     }
 
     private Set<SysMenu> transformTree(Set<SysMenu> menus, Long parentId) {

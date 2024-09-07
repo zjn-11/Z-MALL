@@ -12,4 +12,9 @@ public interface ManagerConstants {
      * redis中系统所有角色的key
      */
     String SYS_ALL_ROLE_KEY = "'roles'";
+
+    /**
+     * redis中系统所有权限数据结合的key
+     */
+    String SYS_ALL_MENU_KEY = "'menus'";
 }
