@@ -22,4 +22,10 @@ public interface SysRoleService extends IService<SysRole>{
     List<SysRole> querySysRoleList();
 
     Boolean saveSysRole(SysRole sysRole);
+
+    SysRole loadSysRoleInfoById(Long roleId);
+
+    Boolean modifySysRoleInfo(SysRole sysRole);
+
+    Boolean removeSysRole(List<Long> roleIdList);
 }
