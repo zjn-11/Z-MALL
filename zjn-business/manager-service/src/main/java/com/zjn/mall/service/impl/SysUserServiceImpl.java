@@ -56,8 +56,28 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 //            sysUserRoles.forEach(sysUserRole -> sysUser.getRoleIdList().add(sysUserRole.getRoleId()));
             List<Long> roleIdList = sysUserRoles.stream().map(SysUserRole::getRoleId).collect(Collectors.toList());
             sysUser.setRoleIdList(roleIdList);
+        } else {
+            sysUser.setRoleIdList(new ArrayList<>());
         }
         return sysUser;
+    }
+
+    /**
+     * 根据id集合删除系统用户
+     * 1. 删除用户信息
+     * 2. 删除用户角色信息
+     * @param userIds
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean removeSysUserListByUserIds(List<Long> userIds) {
+        // 删除用户角色关系
+        sysUserRoleMapper.delete(
+          new LambdaQueryWrapper<SysUserRole>().in(SysUserRole::getUserId, userIds)
+        );
+        // 删除管理员
+        return sysUserMapper.deleteBatchIds(userIds) == userIds.size();
     }
 
     /**

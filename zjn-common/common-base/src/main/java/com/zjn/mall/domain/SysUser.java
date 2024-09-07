@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @TableName(value = "sys_user")
 public class SysUser implements Serializable {
-    @TableId(value = "user_id", type = IdType.INPUT)
+    @TableId(value = "user_id", type = IdType.AUTO)
     @Schema(description="")
     private Long userId;
 

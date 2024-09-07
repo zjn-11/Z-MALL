@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author 张健宁
  * @ClassName SysUserController
@@ -76,4 +78,12 @@ public class SysUserController {
         Integer count = sysUserService.modifySysUserInfo(sysUser);
         return Result.handle(count > 0);
     }
+
+    @ApiOperation("删除系统管理员")
+    @DeleteMapping("{userIds}")
+    @PreAuthorize("hasAnyAuthority('sys:user:delete')")
+    public Result<String> deleteSysUser(@PathVariable List<Long> userIds) {
+        return Result.handle(sysUserService.removeSysUserListByUserIds(userIds));
+    }
+
 }

@@ -2,7 +2,10 @@ package com.zjn.mall.service;
 
 import com.zjn.mall.domain.SysUser;
 import com.baomidou.mybatisplus.extension.service.IService;
-    /**
+
+import java.util.List;
+
+/**
  * @ClassName SysUserService
  * @author 张健宁
  * @Description TODO
@@ -32,4 +35,11 @@ public interface SysUserService extends IService<SysUser>{
      * @return
      */
     Integer modifySysUserInfo(SysUser sysUser);
+
+    /**
+     * 根据id集合删除系统用户信息
+     * @param userIds
+     * @return
+     */
+    Boolean removeSysUserListByUserIds(List<Long> userIds);
 }
