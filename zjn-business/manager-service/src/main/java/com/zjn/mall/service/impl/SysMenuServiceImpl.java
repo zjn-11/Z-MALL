@@ -63,19 +63,44 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         return sysMenuMapper.insert(sysMenu) > 0;
     }
 
+    /**
+     * 修改菜单权限
+     * 可能会出现：目录<->菜单的情况
+     * @param sysMenu
+     * @return
+     */
+    @Override
+    @CacheEvict(key = ManagerConstants.SYS_ALL_MENU_KEY)
+    public Boolean modifySysMenu(SysMenu sysMenu) {
+        int type = sysMenu.getType();
+        // 菜单变为目录需要指定parentId为0
+        if (0 == type) sysMenu.setParentId(0L);
+        return sysMenuMapper.updateById(sysMenu) > 0;
+    }
+
+    /**
+     * 将菜单权限集合转换为树结构方便前端呈现
+     * @param menus
+     * @param parentId
+     * @return
+     */
     private Set<SysMenu> transformTree(Set<SysMenu> menus, Long parentId) {
-        // 从菜单集合中获取根节点集合
-//        Set<SysMenu> roots = menus.stream().filter(menu -> menu.getParentId().equals(parentId)).collect(Collectors.toSet());
-//        roots.forEach(root -> {
-//            // 找到menus中parentId == root.id的所有菜单
-//            Set<SysMenu> child = menus.stream().filter(menu -> menu.getParentId().equals(root.getMenuId())).collect(Collectors.toSet());
-//            // 存入每个根目录对应的菜单对象
-//            root.setChild(child);
-//        });
+        /*有多级菜单的情况*/
         // 从菜单集合中获取根节点集合
         Set<SysMenu> roots = menus.stream().filter(menu -> menu.getParentId().equals(parentId)).collect(Collectors.toSet());
         // 循环节点集合
         roots.forEach(root -> root.setList(transformTree(menus, root.getMenuId())));
         return roots;
+
+        /* 只有两层菜单结构的情况
+        // 从菜单集合中获取根节点集合
+        Set<SysMenu> roots = menus.stream().filter(menu -> menu.getParentId().equals(parentId)).collect(Collectors.toSet());
+        roots.forEach(root -> {
+            // 找到menus中parentId == root.id的所有菜单
+            Set<SysMenu> child = menus.stream().filter(menu -> menu.getParentId().equals(root.getMenuId())).collect(Collectors.toSet());
+            // 存入每个根目录对应的菜单对象
+            root.setChild(child);
+        });
+        */
     }
 }

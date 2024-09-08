@@ -60,4 +60,21 @@ public class SysMenuController {
         return Result.handle(flag);
     }
 
+
+    @ApiOperation("根据id查询权限信息")
+    @GetMapping("info/{menuId}")
+    @PreAuthorize("hasAnyAuthority('sys:menu:select')")
+    public Result<SysMenu> loadSysMenuById(@PathVariable Long menuId) {
+        SysMenu sysMenu = sysMenuService.getById(menuId);
+        return Result.success(sysMenu);
+    }
+
+    @ApiOperation("修改系统权限信息")
+    @PutMapping
+    @PreAuthorize("hasAnyAuthority('sys:menu:update')")
+    public Result<String> modifySysMenu(@RequestBody SysMenu sysMenu) {
+        Boolean flag = sysMenuService.modifySysMenu(sysMenu);
+        return Result.handle(flag);
+    }
+
 }
