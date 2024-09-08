@@ -77,4 +77,12 @@ public class SysMenuController {
         return Result.handle(flag);
     }
 
+    @ApiOperation("删除菜单权限信息")
+    @DeleteMapping("{menuId}")
+    @PreAuthorize("hasAnyAuthority('sys:menu:delete')")
+    public Result<String> removeSysMenu(@PathVariable Long menuId) {
+        Boolean flag = sysMenuService.removeSysMenu(menuId);
+        return Result.handle(flag);
+    }
+
 }

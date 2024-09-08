@@ -1,6 +1,9 @@
 package com.zjn.mall.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zjn.mall.constants.ManagerConstants;
+import com.zjn.mall.ex.handler.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -76,6 +79,26 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         // 菜单变为目录需要指定parentId为0
         if (0 == type) sysMenu.setParentId(0L);
         return sysMenuMapper.updateById(sysMenu) > 0;
+    }
+
+    /**
+     * 删除菜单权限集合
+     *  如果当前菜单还有子节点，就不允许删除
+     * @param menuId
+     * @return
+     */
+    @Override
+    public Boolean removeSysMenu(Long menuId) {
+        // 根据id查询子菜单集合
+        List<SysMenu> subMenuList = sysMenuMapper.selectList(
+                new LambdaQueryWrapper<SysMenu>()
+                        .eq(SysMenu::getParentId, menuId)
+        );
+        if (ObjectUtil.isNotEmpty(subMenuList) && subMenuList.size() != 0) {
+            // 说明当前节点包含有子节点
+            throw new BusinessException("当前菜单节点包含有子节点，不可删除!");
+        }
+        return sysMenuMapper.deleteById(menuId) > 0;
     }
 
     /**
