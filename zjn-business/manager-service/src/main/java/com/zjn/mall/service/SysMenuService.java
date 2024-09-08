@@ -19,4 +19,6 @@ public interface SysMenuService extends IService<SysMenu>{
     Set<SysMenu> queryUserMenusListByUserId(Long loginUserId);
 
     List<SysMenu> loadAllSysMenuList();
+
+    boolean saveSysMenu(SysMenu sysMenu);
 }

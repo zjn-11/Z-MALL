@@ -9,9 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
@@ -52,6 +50,14 @@ public class SysMenuController {
     public Result<List<SysMenu>> loadAllSysMenuList() {
         List<SysMenu> menuList = sysMenuService.loadAllSysMenuList();
         return Result.success(menuList);
+    }
+
+    @ApiOperation("新增系统权限")
+    @PostMapping
+    @PreAuthorize("hasAnyAuthority('sys:menu:save')")
+    public Result<String> saveSysMenu(@RequestBody SysMenu sysMenu) {
+        boolean flag = sysMenuService.saveSysMenu(sysMenu);
+        return Result.handle(flag);
     }
 
 }

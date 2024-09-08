@@ -3,6 +3,7 @@ package com.zjn.mall.service.impl;
 import com.zjn.mall.constants.ManagerConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +50,17 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Cacheable(key = ManagerConstants.SYS_ALL_MENU_KEY)
     public List<SysMenu> loadAllSysMenuList() {
         return sysMenuMapper.selectList(null);
+    }
+
+    /**
+     * 新增权限
+     * @param sysMenu
+     * @return
+     */
+    @Override
+    @CacheEvict(key = ManagerConstants.SYS_ALL_MENU_KEY)
+    public boolean saveSysMenu(SysMenu sysMenu) {
+        return sysMenuMapper.insert(sysMenu) > 0;
     }
 
     private Set<SysMenu> transformTree(Set<SysMenu> menus, Long parentId) {
