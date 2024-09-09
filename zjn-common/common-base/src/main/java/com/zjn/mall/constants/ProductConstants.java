@@ -12,4 +12,9 @@ public interface ProductConstants {
      * redis中商品所有类目的key
      */
     String ALL_CATEGORY_LIST_KEY = "'allCategory'";
+
+    /**
+     * redis中商品一级类目的key
+     */
+    String FIRST_CATEGORY_LIST_KEY = "'firstCategory'";
 }

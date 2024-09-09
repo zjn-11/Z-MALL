@@ -14,5 +14,9 @@ import java.util.List;
 
 public interface CategoryService extends IService<Category>{
 
-    List<Category> quaryAllCategoryList();
+    List<Category> queryAllCategoryList();
+
+    List<Category> quaryFirstCategoryList();
+
+    Boolean saveCategory(Category category);
 }
