@@ -39,7 +39,7 @@ public class CategoryController {
     @GetMapping("listCategory")
     @PreAuthorize("hasAnyAuthority('prod:category:page')")
     public Result<List<Category>> loadFirstCategoryList() {
-        List<Category> categoryList = categoryService.quaryFirstCategoryList();
+        List<Category> categoryList = categoryService.queryFirstCategoryList();
         return Result.success(categoryList);
     }
 
@@ -51,5 +51,20 @@ public class CategoryController {
         return Result.handle(save);
     }
 
+    @ApiOperation("根据id查询目录信息")
+    @GetMapping("info/{categoryId}")
+    @PreAuthorize("hasAnyAuthority('prod:category:info')")
+    public Result<Category> loadCategoryById(@PathVariable Long categoryId) {
+        Category category = categoryService.getById(categoryId);
+        return Result.success(category);
+    }
+
+    @ApiOperation("修改商品目录信息")
+    @PutMapping
+    @PreAuthorize("hasAnyAuthority('prod:category:update')")
+    public Result<String> modifyCategory(@RequestBody Category category) {
+        Boolean modify = categoryService.modifyCategory(category);
+        return Result.handle(modify);
+    }
 
 }
