@@ -33,7 +33,7 @@ public class Prod implements Serializable {
     /**
      * 产品ID
      */
-    @TableId(value = "prod_id", type = IdType.INPUT)
+    @TableId(value = "prod_id", type = IdType.AUTO)
     @Schema(description="产品ID")
     private Long prodId;
 

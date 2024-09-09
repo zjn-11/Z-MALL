@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @TableName(value = "area")
 public class Area implements Serializable {
-    @TableId(value = "area_id", type = IdType.INPUT)
+    @TableId(value = "area_id", type = IdType.AUTO)
     @Schema(description="")
     private Long areaId;
 

@@ -33,7 +33,7 @@ public class Sku implements Serializable {
     /**
      * 单品ID
      */
-    @TableId(value = "sku_id", type = IdType.INPUT)
+    @TableId(value = "sku_id", type = IdType.AUTO)
     @Schema(description="单品ID")
     private Long skuId;
 

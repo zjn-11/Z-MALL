@@ -28,7 +28,7 @@ public class ProdProp implements Serializable {
     /**
      * 属性id
      */
-    @TableId(value = "prop_id", type = IdType.INPUT)
+    @TableId(value = "prop_id", type = IdType.AUTO)
     @Schema(description="属性id")
     private Long propId;
 

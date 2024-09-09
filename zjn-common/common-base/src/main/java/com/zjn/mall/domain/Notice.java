@@ -29,7 +29,7 @@ public class Notice implements Serializable {
     /**
      * 公告id
      */
-    @TableId(value = "id", type = IdType.INPUT)
+    @TableId(value = "id", type = IdType.AUTO)
     @Schema(description="公告id")
     private Long id;
 

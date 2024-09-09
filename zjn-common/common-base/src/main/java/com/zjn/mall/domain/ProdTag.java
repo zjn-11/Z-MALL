@@ -32,7 +32,7 @@ public class ProdTag implements Serializable {
     /**
      * 分组标签id
      */
-    @TableId(value = "id", type = IdType.INPUT)
+    @TableId(value = "id", type = IdType.AUTO)
     @Schema(description="分组标签id")
     private Long id;
 

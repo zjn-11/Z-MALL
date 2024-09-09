@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @TableName(value = "sys_menu")
 public class SysMenu implements Serializable {
-    @TableId(value = "menu_id", type = IdType.INPUT)
+    @TableId(value = "menu_id", type = IdType.AUTO)
     @Schema(description="")
     private Long menuId;
 

@@ -32,7 +32,7 @@ public class MemberAddr implements Serializable {
     /**
      * ID
      */
-    @TableId(value = "addr_id", type = IdType.INPUT)
+    @TableId(value = "addr_id", type = IdType.AUTO)
     @Schema(description="ID")
     private Long addrId;
 

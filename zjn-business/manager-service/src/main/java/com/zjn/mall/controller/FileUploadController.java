@@ -9,6 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,7 +39,7 @@ public class FileUploadController {
      * @return
      */
     @ApiOperation("上传单个文件")
-    @GetMapping("upload/element")
+    @PostMapping("upload/element")
     public String uploadFile(MultipartFile file) {
         String bucketName = aliyunOSSConfig.getBucketName();
         // 创建以天为单位的名称作为文件夹名称
@@ -48,6 +49,7 @@ public class FileUploadController {
         // 需要获取原文件的名称
         String originalFilename = file.getOriginalFilename();
         // 获取原文件后缀
+        assert originalFilename != null;
         String fileSuffix = originalFilename.substring(originalFilename.lastIndexOf('.'));
 
         // 拼接得到存储对象的完整路径（不能包含bucketName）

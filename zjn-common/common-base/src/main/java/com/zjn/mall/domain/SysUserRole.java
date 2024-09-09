@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @TableName(value = "sys_user_role")
 public class SysUserRole implements Serializable {
-    @TableId(value = "id", type = IdType.INPUT)
+    @TableId(value = "id", type = IdType.AUTO)
     @Schema(description="")
     private Long id;
 
