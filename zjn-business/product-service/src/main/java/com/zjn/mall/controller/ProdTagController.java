@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author 张健宁
  * @ClassName TagController
@@ -73,7 +75,15 @@ public class ProdTagController {
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyAuthority('prod:prodTag:delete')")
     public Result<String> removeProdTagById(@PathVariable Long id) {
-        Boolean remove = prodTagService.removeById(id);
+        Boolean remove = prodTagService.removeProdTagById(id);
         return Result.handle(remove);
+    }
+
+    @ApiOperation("查询分组标签集合")
+    @GetMapping("listTagList")
+    @PreAuthorize("hasAnyAuthority('prod:prodTag:page')")
+    public Result<List<ProdTag>> loadProdTagList() {
+        List<ProdTag> prodTagList = prodTagService.loadProdTagList();
+        return Result.success(prodTagList);
     }
 }

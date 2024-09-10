@@ -2,7 +2,10 @@ package com.zjn.mall.service;
 
 import com.zjn.mall.domain.ProdTag;
 import com.baomidou.mybatisplus.extension.service.IService;
-    /**
+
+import java.util.List;
+
+/**
  * @ClassName ProdTagService
  * @author 张健宁
  * @Description TODO
@@ -15,4 +18,8 @@ public interface ProdTagService extends IService<ProdTag>{
 
 
     Boolean modifyProdTag(ProdTag prodTag);
+
+    Boolean removeProdTagById(Long id);
+
+    List<ProdTag> loadProdTagList();
 }

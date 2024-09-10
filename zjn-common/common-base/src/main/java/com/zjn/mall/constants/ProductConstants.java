@@ -17,4 +17,14 @@ public interface ProductConstants {
      * redis中商品一级类目的key
      */
     String FIRST_CATEGORY_LIST_KEY = "'firstCategory'";
+
+    /**
+     * redis中所有状态正常的商品分组标签的key
+     */
+    String PROD_TAG_NORMAL_LIST_KEY = "'normalProdTag'";
+
+    /**
+     * redis中所有商品属性的key
+     */
+    String ALL_PROD_PROP_LIST_KEY = "'allProdProp'";
 }

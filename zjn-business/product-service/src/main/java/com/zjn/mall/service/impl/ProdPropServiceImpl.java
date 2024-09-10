@@ -4,11 +4,15 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zjn.mall.constants.ProductConstants;
 import com.zjn.mall.domain.ProdPropValue;
 import com.zjn.mall.ex.handler.BusinessException;
 import com.zjn.mall.mapper.ProdPropValueMapper;
 import com.zjn.mall.service.ProdPropValueService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
@@ -30,6 +34,7 @@ import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "com.zjn.mall.service.impl.ProdPropServiceImpl")
 public class ProdPropServiceImpl extends ServiceImpl<ProdPropMapper, ProdProp> implements ProdPropService{
 
     private final ProdPropMapper prodPropMapper;
@@ -89,6 +94,7 @@ public class ProdPropServiceImpl extends ServiceImpl<ProdPropMapper, ProdProp> i
      * @return
      */
     @Override
+    @CacheEvict(key = ProductConstants.ALL_PROD_PROP_LIST_KEY)
     @Transactional(rollbackFor = Exception.class)
     public Boolean saveProdSpec(ProdProp prodProp) {
         if (!StringUtils.hasText(prodProp.getPropName())) {
@@ -108,6 +114,7 @@ public class ProdPropServiceImpl extends ServiceImpl<ProdPropMapper, ProdProp> i
      * @return
      */
     @Override
+    @CacheEvict(key = ProductConstants.ALL_PROD_PROP_LIST_KEY)
     @Transactional(rollbackFor = Exception.class)
     public Boolean modifyProdSpec(ProdProp prodProp) {
         if (!StringUtils.hasText(prodProp.getPropName())) {
@@ -124,7 +131,13 @@ public class ProdPropServiceImpl extends ServiceImpl<ProdPropMapper, ProdProp> i
         return false;
     }
 
+    /**
+     * 删除商品规格信息
+     * @param propId
+     * @return
+     */
     @Override
+    @CacheEvict(key = ProductConstants.ALL_PROD_PROP_LIST_KEY)
     @Transactional(rollbackFor = Exception.class)
     public Boolean removeProdSpecById(Long propId) {
         prodPropValueMapper.delete(
@@ -133,6 +146,26 @@ public class ProdPropServiceImpl extends ServiceImpl<ProdPropMapper, ProdProp> i
         );
 
         return prodPropMapper.deleteById(propId) > 0;
+    }
+
+    @Override
+    @Cacheable(key = ProductConstants.ALL_PROD_PROP_LIST_KEY)
+    public List<ProdProp> queryProdSpecList() {
+        return prodPropMapper.selectList(null);
+    }
+
+    /**
+     * 根据属性id查询对应的属性值
+     * @param propId
+     * @return
+     */
+    @Override
+    public List<ProdPropValue> querySpecValueList(Long propId) {
+        return prodPropValueMapper.selectList(
+                new LambdaQueryWrapper<ProdPropValue>()
+                        .eq(ProdPropValue::getPropId, propId)
+                        .orderByDesc(ProdPropValue::getValueId)
+        );
     }
 
     /**

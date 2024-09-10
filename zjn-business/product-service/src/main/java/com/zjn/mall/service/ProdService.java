@@ -11,5 +11,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface ProdService extends IService<Prod>{
 
-
+    Boolean saveProd(Prod prod);
 }

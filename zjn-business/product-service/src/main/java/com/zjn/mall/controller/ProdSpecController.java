@@ -2,6 +2,7 @@ package com.zjn.mall.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.ProdProp;
+import com.zjn.mall.domain.ProdPropValue;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.ProdPropService;
 import io.swagger.annotations.Api;
@@ -9,6 +10,8 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author 张健宁
@@ -57,6 +60,22 @@ public class ProdSpecController {
     public Result<String> removeProdSpecById(@PathVariable Long propId) {
         Boolean remove = prodPropService.removeProdSpecById(propId);
         return Result.handle(remove);
+    }
+
+    @ApiOperation("查询商品规格（属性和属性值）")
+    @GetMapping("list")
+    @PreAuthorize("hasAnyAuthority('prod:spec:page')")
+    public Result<List<ProdProp>> loadProdSpecList() {
+        List<ProdProp> prodPropList = prodPropService.queryProdSpecList();
+        return Result.success(prodPropList);
+    }
+
+    @ApiOperation("根据属性id查询属性值")
+    @GetMapping("listSpecValue/{propId}")
+    @PreAuthorize("hasAnyAuthority('prod:spec:page')")
+    public Result<List<ProdPropValue>> loadSpecValueList(@PathVariable Long propId) {
+        List<ProdPropValue> prodPropValueList = prodPropService.querySpecValueList(propId);
+        return Result.success(prodPropValueList);
     }
 
 }

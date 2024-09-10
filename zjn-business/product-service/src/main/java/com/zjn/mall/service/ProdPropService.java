@@ -3,7 +3,11 @@ package com.zjn.mall.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.ProdProp;
 import com.baomidou.mybatisplus.extension.service.IService;
-    /**
+import com.zjn.mall.domain.ProdPropValue;
+
+import java.util.List;
+
+/**
  * @ClassName ProdPropService
  * @author 张健宁
  * @Description TODO
@@ -19,4 +23,8 @@ public interface ProdPropService extends IService<ProdProp>{
     Boolean modifyProdSpec(ProdProp prodProp);
 
     Boolean removeProdSpecById(Long propId);
+
+    List<ProdProp> queryProdSpecList();
+
+    List<ProdPropValue> querySpecValueList(Long propId);
 }
