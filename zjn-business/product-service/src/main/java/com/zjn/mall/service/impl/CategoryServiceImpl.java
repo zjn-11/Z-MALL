@@ -100,8 +100,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             if (ObjectUtil.isNotNull(newParentId) && !newParentId.equals(0L)) {
                 // 1 -> 2: beforeParentId = 0 && newParentId != 0
                 // 查看当前类目是否有子类目，如果有，则不允许修改
-                List<Category> categories = categoryMapper.selectList(new LambdaQueryWrapper<Category>().eq(Category::getParentId, category.getCategoryId()));
-                if (CollectionUtil.isNotEmpty(categories)) {
+                if (hasChild(category.getCategoryId())) {
                     throw new BusinessException("一级类目具有子目录，不允许修改为二级目录！");
                 }
             }
@@ -110,5 +109,36 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             category.setParentId(0L);
         }
         return categoryMapper.updateById(category) > 0;
+    }
+
+    /**
+     * 删除类目信息
+     * 如果当前类目有子类目，则不允许删除
+     * @param categoryId
+     * @return
+     */
+    @Override
+    @Caching(evict = {
+            @CacheEvict(key = ProductConstants.ALL_CATEGORY_LIST_KEY),
+            @CacheEvict(key = ProductConstants.FIRST_CATEGORY_LIST_KEY)
+    })
+    public Boolean removeCategoryById(Long categoryId) {
+        if (hasChild(categoryId)) {
+            throw new BusinessException("当前类目存在子类目，不允许删除！");
+        }
+        return categoryMapper.deleteById(categoryId) > 0;
+    }
+
+    /**
+     * 判断当前一级目录是否有二级目录存在
+     * @param categoryId
+     * @return 存在二级目录就返回true
+     */
+    private boolean hasChild(Long categoryId) {
+        List<Category> categories = categoryMapper.selectList(
+                new LambdaQueryWrapper<Category>()
+                        .eq(Category::getParentId, categoryId)
+        );
+        return CollectionUtil.isNotEmpty(categories);
     }
 }

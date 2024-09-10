@@ -43,7 +43,7 @@ public class CategoryController {
         return Result.success(categoryList);
     }
 
-    @ApiOperation("新增商品类目")
+    @ApiOperation("新增商品类目信息")
     @PostMapping
     @PreAuthorize("hasAnyAuthority('prod:category:save')")
     public Result<String> saveCategory(@RequestBody Category category) {
@@ -51,7 +51,7 @@ public class CategoryController {
         return Result.handle(save);
     }
 
-    @ApiOperation("根据id查询目录信息")
+    @ApiOperation("根据id查询类目信息")
     @GetMapping("info/{categoryId}")
     @PreAuthorize("hasAnyAuthority('prod:category:info')")
     public Result<Category> loadCategoryById(@PathVariable Long categoryId) {
@@ -59,12 +59,20 @@ public class CategoryController {
         return Result.success(category);
     }
 
-    @ApiOperation("修改商品目录信息")
+    @ApiOperation("修改商品类目信息")
     @PutMapping
     @PreAuthorize("hasAnyAuthority('prod:category:update')")
     public Result<String> modifyCategory(@RequestBody Category category) {
         Boolean modify = categoryService.modifyCategory(category);
         return Result.handle(modify);
+    }
+
+    @ApiOperation("删除商品类目信息")
+    @DeleteMapping("{categoryId}")
+    @PreAuthorize("hasAnyAuthority('prod:category:delete')")
+    public Result<String> removeCategoryById(@PathVariable Long categoryId) {
+        Boolean remove = categoryService.removeCategoryById(categoryId);
+        return Result.handle(remove);
     }
 
 }

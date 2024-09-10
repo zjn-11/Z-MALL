@@ -11,5 +11,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface ProdTagService extends IService<ProdTag>{
 
+    Boolean saveProdTag(ProdTag prodTag);
 
+
+    Boolean modifyProdTag(ProdTag prodTag);
 }
