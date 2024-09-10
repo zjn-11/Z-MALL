@@ -1,5 +1,6 @@
 package com.zjn.mall.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.ProdProp;
 import com.baomidou.mybatisplus.extension.service.IService;
     /**
@@ -11,5 +12,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface ProdPropService extends IService<ProdProp>{
 
+    Page<ProdProp> queryProdSpecPage(Long current, Long size, String propName);
 
+    Boolean saveProdSpec(ProdProp prodProp);
+
+    Boolean modifyProdSpec(ProdProp prodProp);
+
+    Boolean removeProdSpecById(Long propId);
 }
