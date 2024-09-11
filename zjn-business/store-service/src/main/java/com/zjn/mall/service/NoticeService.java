@@ -12,4 +12,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface NoticeService extends IService<Notice>{
 
 
+    Boolean saveShopNotice(Notice notice);
+
+    Boolean modifyShopNotice(Notice notice);
 }
