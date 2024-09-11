@@ -12,4 +12,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface ProdService extends IService<Prod>{
 
     Boolean saveProd(Prod prod);
+
+    Prod queryProdInfoById(Long id);
+
+    Boolean modifyProdInfo(Prod prod);
+
+    Boolean removeProdById(Long id);
 }

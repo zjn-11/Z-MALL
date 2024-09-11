@@ -52,4 +52,28 @@ public class ProdController {
         Boolean save = prodService.saveProd(prod);
         return Result.handle(save);
     }
+
+    @ApiOperation("根据id查询商品全部信息")
+    @GetMapping("info/{id}")
+    @PreAuthorize("hasAnyAuthority('prod:prod:info')")
+    public Result<Prod> loadProdInfoById(@PathVariable Long id) {
+        Prod prod = prodService.queryProdInfoById(id);
+        return Result.success(prod);
+    }
+
+    @ApiOperation("修改商品信息")
+    @PutMapping
+    @PreAuthorize("hasAnyAuthority('prod:prod:update')")
+    public Result<String> modifyProdInfo(@RequestBody Prod prod) {
+        Boolean modify = prodService.modifyProdInfo(prod);
+        return Result.handle(modify);
+    }
+
+    @ApiOperation("删除商品信息")
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('prod:prod:delete')")
+    public Result<String> removeProdById(@PathVariable Long id) {
+        Boolean remove = prodService.removeProdById(id);
+        return Result.handle(remove);
+    }
 }
