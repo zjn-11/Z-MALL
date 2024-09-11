@@ -13,6 +13,7 @@
     <artifactId>z-mall</artifactId>
     <version>1.0-SNAPSHOT</version>
     <description>父工程</description>
+
     <modules>
         <module>cloud-iaas</module>
         <module>zjn-business</module>
