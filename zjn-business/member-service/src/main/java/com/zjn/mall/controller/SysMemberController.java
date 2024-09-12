@@ -79,4 +79,15 @@ public class SysMemberController {
         Boolean remove = memberService.removeMemberByIds(ids);
         return Result.handle(remove);
     }
+
+    @ApiOperation("根据openId查询会员昵称")
+    @GetMapping("getNickNameByOpenId")
+    public Result<String> getNickNameByOpenId(@RequestParam String openId) {
+        Member member = memberService.getOne(
+                new LambdaQueryWrapper<Member>()
+                        .select(Member::getNickName)
+                        .eq(Member::getOpenId, openId)
+        );
+        return Result.success(member.getNickName());
+    }
 }

@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -197,6 +199,27 @@ public class Order implements Serializable {
     @TableField(value = "close_type")
     @Schema(description="订单关闭原因 1-超时未支付 2-退款关闭 4-买家取消 15-已通过货到付款交易")
     private Integer closeType;
+
+    /**
+     * 订单详情集合
+     */
+    @TableField(exist = false)
+    @Schema(description = "订单详情集合")
+    private List<OrderItem> orderItems;
+
+    /**
+     * 订单对应的收货地址信息
+     */
+    @TableField(exist = false)
+    @Schema(description = "订单详情集合")
+    private MemberAddr userAddrOrder;
+
+    /**
+     * 买家名称
+     */
+    @TableField(exist = false)
+    @Schema(description = "买家名称")
+    private String nickName;
 
     private static final long serialVersionUID = 1L;
 }

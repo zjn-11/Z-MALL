@@ -18,6 +18,9 @@ spring:
           - datasource.yaml
   profiles:
     active: dev
+feign:
+  httpclient:
+    enabled: true
 swagger3:
   base-package: com.zjn.mall.controller
   name: 张健宁
