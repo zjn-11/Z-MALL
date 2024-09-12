@@ -88,6 +88,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
      * @return
      */
     @Override
+    @CacheEvict(key = ManagerConstants.SYS_ALL_MENU_KEY)
     public Boolean removeSysMenu(Long menuId) {
         // 根据id查询子菜单集合
         List<SysMenu> subMenuList = sysMenuMapper.selectList(
@@ -95,6 +96,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                         .eq(SysMenu::getParentId, menuId)
         );
         if (ObjectUtil.isNotEmpty(subMenuList) && subMenuList.size() != 0) {
+            // 如果当前一级是菜单不是目录，需要判断是不是只有一个一级目录
+            if (subMenuList.size() == 1 && subMenuList.get(0).getParentId().equals(menuId)) {
+                return sysMenuMapper.deleteById(menuId) > 0;
+            }
             // 说明当前节点包含有子节点
             throw new BusinessException("当前菜单节点包含有子节点，不可删除!");
         }
