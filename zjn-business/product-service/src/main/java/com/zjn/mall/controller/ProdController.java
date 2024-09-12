@@ -14,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author 张健宁
  * @ClassName ProdController
@@ -75,5 +77,14 @@ public class ProdController {
     public Result<String> removeProdById(@PathVariable Long id) {
         Boolean remove = prodService.removeProdById(id);
         return Result.handle(remove);
+    }
+
+    ///////////////////////////////////feign 接口///////////////////////////////////
+
+    @ApiOperation("根据id集合查询商品集合")
+    @GetMapping("getProdListByIds")
+    public Result<List<Prod>> loadProdListByIds(@RequestParam List<Long> prodIdList) {
+        List<Prod> prods = prodService.listByIds(prodIdList);
+        return Result.success(prods);
     }
 }

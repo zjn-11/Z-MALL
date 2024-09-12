@@ -106,5 +106,21 @@ public class IndexImg implements Serializable {
     @Schema(description="关联商品类型，0已关联商品,-1未关联商品")
     private Integer type;
 
+    ///////////////////////////////////查看轮播图详情///////////////////////////////////
+    /**
+     * 商品名称
+     */
+    @TableField(exist = false)
+    @Schema(description="商品名称")
+    private String prodName;
+
+    /**
+     * 商品图片
+     */
+    @TableField(exist = false)
+    @Schema(description="商品图片")
+    private String pic;
+
+
     private static final long serialVersionUID = 1L;
 }
