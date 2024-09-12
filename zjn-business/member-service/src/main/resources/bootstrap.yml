@@ -1,0 +1,31 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: member-service
+  cloud:
+    nacos:
+      server-addr: 192.168.121.128:8848
+      discovery:
+        namespace: ae336f04-3449-4fec-a1fc-ed803fba6e68
+        group: A_GROUP
+        service: ${spring.application.name}
+      config:
+        file-extension: yaml
+        namespace: ${spring.cloud.nacos.discovery.namespace}
+        group: ${spring.cloud.nacos.discovery.group}
+        shared-configs:
+          - datasource.yaml
+  profiles:
+    active: dev
+swagger3:
+  base-package: com.zjn.mall.controller
+  name: 张健宁
+  url: https://www.baidu.com
+  email: zhangjianning11@163.com
+  title: 后台管理系统-会员管理模块
+  description: 实现会员管理系统的所有接口，根路径/member-service
+  license: zjn
+  licenseUrl: https://www.baidu.com
+  terms-of-service-url: https://www.baidu.com
+  version: 1.0
