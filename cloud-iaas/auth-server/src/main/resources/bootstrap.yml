@@ -19,7 +19,11 @@ spring:
           - datasource.yaml
   profiles:
     active: dev
-
+wx:
+  appid: wxc46ab54f8674e473
+  secret: e2bef18d2f86cee88cb67d63dfae8892
+  url: https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code
+  pwd: $2a$10$iLVBTJJjqyx5ftP196kGqezKNO1Eoor0OTrXEboqJH8WUvuUsD8C.
 
 
 #spring:

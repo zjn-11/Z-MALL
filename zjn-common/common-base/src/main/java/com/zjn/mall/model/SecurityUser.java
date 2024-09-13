@@ -29,7 +29,9 @@ public class SecurityUser implements UserDetails {
     private Long shopId;
     private String loginType;
     private Set<String> perms = new HashSet<>();
+
     // 商城购物系统会员的相关属性
+    private String openid;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
