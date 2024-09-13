@@ -16,6 +16,8 @@ import com.zjn.mall.mapper.OrderItemMapper;
 import com.zjn.mall.mapper.OrderMapper;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.OrderService;
+import com.zjn.mall.util.AuthUtils;
+import com.zjn.mall.vo.OrderStatusCountVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -111,4 +113,32 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         return order;
     }
+
+    /**
+     * 获取不同状态订单数量
+     * 1:待付款
+     * 2:待发货
+     * 3:待收货
+     * @return
+     */
+    @Override
+    public OrderStatusCountVO queryOrderCountByStatus() {
+        String openid = AuthUtils.getLoginMemberOpenid();
+        Integer unPay = orderMapper.selectCount(new LambdaQueryWrapper<Order>()
+                .eq(Order::getOpenId, openid)
+                .eq(Order::getStatus, 1)
+        );
+        Integer payed = orderMapper.selectCount(new LambdaQueryWrapper<Order>()
+                .eq(Order::getOpenId, openid)
+                .eq(Order::getStatus, 2)
+        );
+        Integer consignment = orderMapper.selectCount(new LambdaQueryWrapper<Order>()
+                .eq(Order::getOpenId, openid)
+                .eq(Order::getStatus, 2)
+        );
+        return OrderStatusCountVO.builder()
+                .unPay(unPay).payed(payed).consignment(consignment)
+                .build();
+    }
+
 }

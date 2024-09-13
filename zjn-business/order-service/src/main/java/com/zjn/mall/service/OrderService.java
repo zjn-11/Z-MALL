@@ -3,6 +3,7 @@ package com.zjn.mall.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Order;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zjn.mall.vo.OrderStatusCountVO;
 
 import java.util.Date;
 
@@ -19,4 +20,6 @@ public interface OrderService extends IService<Order>{
     Page<Order> queryOrderPage(Page<Order> orderPage, String orderNumber, Integer status, Date startTime, Date endTime);
 
     Order queryOrderDetailById(String orderNumber);
+
+    OrderStatusCountVO queryOrderCountByStatus();
 }
