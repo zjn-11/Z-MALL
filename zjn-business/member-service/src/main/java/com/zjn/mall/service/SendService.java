@@ -10,4 +10,6 @@ import java.util.Map;
  */
 public interface SendService {
     void sendPhoneMsg(Map<String, Object> map) throws Exception;
+
+    Boolean saveMsgPhone(Map<String, Object> map);
 }

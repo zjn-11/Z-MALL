@@ -30,4 +30,11 @@ public class SendController {
         sendService.sendPhoneMsg(map);
         return Result.success("短信发送成功");
     }
+
+    @ApiOperation("保存用户绑定的手机号")
+    @PostMapping("savePhone")
+    public Result<String> saveMsgPhone(@RequestBody Map<String, Object> map) {
+        Boolean save = sendService.saveMsgPhone(map);
+        return Result.handle(save);
+    }
 }
