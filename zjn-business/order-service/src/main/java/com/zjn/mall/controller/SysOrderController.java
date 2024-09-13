@@ -3,6 +3,7 @@ package com.zjn.mall.controller;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Member;
@@ -10,9 +11,11 @@ import com.zjn.mall.domain.Order;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.OrderItemService;
 import com.zjn.mall.service.OrderService;
+import com.zjn.mall.util.EasyExcelUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -59,5 +62,20 @@ public class SysOrderController {
     public Result<Order> loadOrderDetailById(@PathVariable String orderNumber) {
         Order order = orderService.queryOrderDetailById(orderNumber);
         return Result.success(order);
+    }
+
+    @ApiOperation("导出销售记录")
+    @GetMapping("soldExcel")
+    @PreAuthorize("hasAnyAuthority('order:order:soldExcel')")
+    public Result<String> ExportSoldOrderRecordExcel() {
+        // 找到所有的订单
+        List<Order> list = orderService.list(
+                new LambdaQueryWrapper<Order>()
+                        .orderByDesc(Order::getCreateTime)
+        );
+        String fileName = "./text/SoldOrderRecord";
+        String sheetName = "已售订单";
+        EasyExcelUtils.exportExcel(fileName, sheetName, Order.class, list);
+        return Result.success(null);
     }
 }
