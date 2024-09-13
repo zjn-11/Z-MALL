@@ -29,4 +29,13 @@ public class MemberController {
         Boolean modify = memberService.modifyMemberInfoByOpenId(member);
         return Result.handle(modify);
     }
+
+    @ApiOperation("检查当前用户是否绑定了手机号")
+    @GetMapping("isBindPhone")
+    public Result<Boolean> loadMemberIsBindPhone() {
+        Boolean flag = memberService.queryMemberIsBindPhone();
+        return Result.success(flag);
+    }
+
+
 }

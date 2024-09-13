@@ -37,6 +37,7 @@
         <fast-json.version>1.2.80</fast-json.version>
         <oss.version>3.17.4</oss.version>
         <easy-excel.version>3.3.2</easy-excel.version>
+        <dysmsapi.version>3.0.0</dysmsapi.version>
     </properties>
 
     <dependencies>
@@ -118,6 +119,12 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>easyexcel</artifactId>
                 <version>${easy-excel.version}</version>
+            </dependency>
+            <!--阿里云短信服务-->
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>dysmsapi20170525</artifactId>
+                <version>${dysmsapi.version}</version>
             </dependency>
         </dependencies>
 

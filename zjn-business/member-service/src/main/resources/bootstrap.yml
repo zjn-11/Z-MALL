@@ -16,6 +16,7 @@ spring:
         group: ${spring.cloud.nacos.discovery.group}
         shared-configs:
           - datasource.yaml
+          - sms-shared.yaml
   profiles:
     active: dev
 swagger3:

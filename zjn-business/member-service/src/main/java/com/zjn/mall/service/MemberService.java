@@ -17,4 +17,6 @@ public interface MemberService extends IService<Member>{
     Boolean removeMemberByIds(List<Long> ids);
 
     Boolean modifyMemberInfoByOpenId(Member member);
+
+    Boolean queryMemberIsBindPhone();
 }

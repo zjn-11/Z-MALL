@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zjn.mall.domain.Member;
 import com.zjn.mall.mapper.MemberMapper;
 import com.zjn.mall.service.MemberService;
+import org.springframework.util.StringUtils;
 
 /**
  * @author 张健宁
@@ -53,6 +54,11 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
         return updateBatchById(members);
     }
 
+    /**
+     * 个人中心点击授权后，更新姓名、头像、性别
+     * @param member
+     * @return
+     */
     @Override
     public Boolean modifyMemberInfoByOpenId(Member member) {
         // 获取会员openid
@@ -63,5 +69,18 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
                         .eq(Member::getOpenId, openid)
         );
         return update > 0;
+    }
+
+    @Override
+    public Boolean queryMemberIsBindPhone() {
+        String openid = AuthUtils.getLoginMemberOpenid();
+        Member member = memberMapper.selectOne(
+                new LambdaQueryWrapper<Member>()
+                        .eq(Member::getOpenId, openid)
+        );
+        if (!StringUtils.hasText(member.getUserMobile())) {
+            return false;
+        }
+        return true;
     }
 }

@@ -33,10 +33,10 @@ public class AliyunOSSConfig {
     /**
      * OSS的accessId
      */
-    private String ACCESS_KEY_ID;
+    private String accessKeyId;
 
     /**
      * OSS的accessSecret
      */
-    private String ACCESS_KEY_SECRET;
+    private String accessKeySecret;
 }

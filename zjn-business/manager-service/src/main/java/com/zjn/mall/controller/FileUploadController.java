@@ -56,7 +56,7 @@ public class FileUploadController {
         String objectName = newFolderName + "/" + newFileName + fileSuffix;
 
         // 创建OSSClient实例。
-        OSS ossClient = new OSSClientBuilder().build(aliyunOSSConfig.getEndpoint(), aliyunOSSConfig.getACCESS_KEY_ID(), aliyunOSSConfig.getACCESS_KEY_SECRET());
+        OSS ossClient = new OSSClientBuilder().build(aliyunOSSConfig.getEndpoint(), aliyunOSSConfig.getAccessKeyId(), aliyunOSSConfig.getAccessKeySecret());
         URL url = null;
         try {
             // 创建PutObjectRequest对象。
