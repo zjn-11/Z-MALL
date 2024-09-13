@@ -229,7 +229,7 @@ public class Order implements Serializable {
     private Integer closeType;
 
     /**
-     * 订单详情集合
+     * 后台管理系统订单详情集合
      */
     @TableField(exist = false)
     @ApiModelProperty(value = "订单详情集合")
@@ -250,6 +250,14 @@ public class Order implements Serializable {
     @Schema(description = "买家名称")
     @ExcelIgnore
     private String nickName;
+
+    /**
+     * 小程序端订单明细
+     */
+    @TableField(exist = false)
+    @Schema(description = "小程序端订单明细")
+    @ExcelIgnore
+    private List<OrderItem> orderItemDtos;
 
     private static final long serialVersionUID = 1L;
 }

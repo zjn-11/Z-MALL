@@ -1,5 +1,7 @@
 package com.zjn.mall.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zjn.mall.domain.Order;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.OrderService;
 import com.zjn.mall.vo.OrderStatusCountVO;
@@ -8,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -28,5 +31,15 @@ public class OrderController {
     public Result<OrderStatusCountVO> loadOrderCountByStatus() {
         OrderStatusCountVO orderStatusCountVO = orderService.queryOrderCountByStatus();
         return Result.success(orderStatusCountVO);
+    }
+
+    @ApiOperation("多条件分页查询会员不同状态订单")
+    @GetMapping("myOrder")
+    public Result<Page<Order>> loadMemberOrderPage(@RequestParam Long current,
+                                        @RequestParam Long size,
+                                        @RequestParam Integer status) {
+        Page<Order> orderPage = new Page<>(current, size);
+        orderPage = orderService.queryMemberOrderPage(orderPage, status);
+        return Result.success(orderPage);
     }
 }

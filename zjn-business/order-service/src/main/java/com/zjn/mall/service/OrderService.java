@@ -22,4 +22,6 @@ public interface OrderService extends IService<Order>{
     Order queryOrderDetailById(String orderNumber);
 
     OrderStatusCountVO queryOrderCountByStatus();
+
+    Page<Order> queryMemberOrderPage(Page<Order> orderPage, Integer status);
 }
