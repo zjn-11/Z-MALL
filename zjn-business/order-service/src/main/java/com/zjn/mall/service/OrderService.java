@@ -3,9 +3,11 @@ package com.zjn.mall.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Order;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zjn.mall.domain.OrderItem;
 import com.zjn.mall.vo.OrderStatusCountVO;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @ClassName OrderService
@@ -24,4 +26,6 @@ public interface OrderService extends IService<Order>{
     OrderStatusCountVO queryOrderCountByStatus();
 
     Page<Order> queryMemberOrderPage(Page<Order> orderPage, Integer status);
+
+    Order queryOrderDetailByOrderNumber(String orderNumber);
 }

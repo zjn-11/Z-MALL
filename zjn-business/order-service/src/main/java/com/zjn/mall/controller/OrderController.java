@@ -2,6 +2,7 @@ package com.zjn.mall.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Order;
+import com.zjn.mall.domain.OrderItem;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.OrderService;
 import com.zjn.mall.vo.OrderStatusCountVO;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @author 张健宁
@@ -41,5 +44,12 @@ public class OrderController {
         Page<Order> orderPage = new Page<>(current, size);
         orderPage = orderService.queryMemberOrderPage(orderPage, status);
         return Result.success(orderPage);
+    }
+
+    @ApiOperation("根据订单号查询订单详情页信息")
+    @GetMapping("orderDetail")
+    public Result<Order> loadOrderDetailByOrderNumber(@RequestParam String orderNumber) {
+        Order orderDetail = orderService.queryOrderDetailByOrderNumber(orderNumber);
+        return Result.success(orderDetail);
     }
 }

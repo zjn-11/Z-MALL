@@ -1,6 +1,7 @@
 package com.zjn.mall.service.impl;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -11,6 +12,7 @@ import com.zjn.mall.constants.BusinessEnum;
 import com.zjn.mall.domain.MemberAddr;
 import com.zjn.mall.domain.Order;
 import com.zjn.mall.domain.OrderItem;
+import com.zjn.mall.dto.UserAddrDto;
 import com.zjn.mall.ex.handler.BusinessException;
 import com.zjn.mall.feign.MemberClient;
 import com.zjn.mall.mapper.OrderItemMapper;
@@ -20,7 +22,6 @@ import com.zjn.mall.service.OrderService;
 import com.zjn.mall.util.AuthUtils;
 import com.zjn.mall.vo.OrderStatusCountVO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -159,6 +160,40 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
 
     /**
+     * 获取订单详细信息
+     * @param orderNumber
+     * @return
+     */
+    @Override
+    public Order queryOrderDetailByOrderNumber(String orderNumber) {
+        // 查询出订单信息
+        Order order = orderMapper.selectOne(
+                new LambdaQueryWrapper<Order>()
+                        .eq(Order::getOrderNumber, orderNumber)
+        );
+        if (ObjectUtil.isEmpty(order)) {
+            throw new BusinessException("订单编号有误，请联系平台核实！");
+        }
+
+        // 查询出地址信息
+        Result<MemberAddr> result = memberClient.getMemberAddrById(order.getAddrOrderId());
+        if (result.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign接口调用失败：未能获取到收货地址信息！");
+        }
+        UserAddrDto userAddrDto = BeanUtil.toBean(result.getData(), UserAddrDto.class);
+        order.setUserAddrDto(userAddrDto);
+
+        // 查询订单条目信息
+        List<OrderItem> orderItems = orderItemMapper.selectList(
+                new LambdaQueryWrapper<OrderItem>()
+                        .eq(OrderItem::getOrderNumber, orderNumber)
+        );
+        order.setOrderItemDtos(orderItems);
+
+        return order;
+    }
+
+    /**
      * 根据订单号查询出订单详情
      *
      * @param orderPage
@@ -172,21 +207,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                     new LambdaQueryWrapper<OrderItem>()
                             .in(OrderItem::getOrderNumber, orderNumbers)
             );
-            if (loginType.equals(AuthConstants.SYS_USER_LOGIN)) {
-                orders.forEach(order -> {
-                    List<OrderItem> orderItemList = orderItems.stream()
-                            .filter(orderItem -> orderItem.getOrderNumber().equals(order.getOrderNumber()))
-                            .collect(Collectors.toList());
+            orders.forEach(order -> {
+                List<OrderItem> orderItemList = orderItems.stream()
+                        .filter(orderItem -> orderItem.getOrderNumber().equals(order.getOrderNumber()))
+                        .collect(Collectors.toList());
+                if (loginType.equals(AuthConstants.SYS_USER_LOGIN))
                     order.setOrderItems(orderItemList);
-                });
-            } else {
-                orders.forEach(order -> {
-                    List<OrderItem> orderItemList = orderItems.stream()
-                            .filter(orderItem -> orderItem.getOrderNumber().equals(order.getOrderNumber()))
-                            .collect(Collectors.toList());
+                else
                     order.setOrderItemDtos(orderItemList);
-                });
-            }
+            });
         }
     }
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zjn.mall.dto.UserAddrDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -239,7 +240,7 @@ public class Order implements Serializable {
      * 订单对应的收货地址信息
      */
     @TableField(exist = false)
-    @Schema(description = "订单详情集合")
+    @Schema(description = "订单对应的收货地址信息")
     @ExcelIgnore
     private MemberAddr userAddrOrder;
 
@@ -258,6 +259,14 @@ public class Order implements Serializable {
     @Schema(description = "小程序端订单明细")
     @ExcelIgnore
     private List<OrderItem> orderItemDtos;
+
+    /**
+     * 小程序端用户地址信息
+     */
+    @TableField(exist = false)
+    @Schema(description = "小程序端用户地址信息")
+    @ExcelIgnore
+    private UserAddrDto userAddrDto;
 
     private static final long serialVersionUID = 1L;
 }
