@@ -36,4 +36,8 @@ public class AuthUtils {
     public static Set<String> getLoginUserPerms() {
         return getLoginUser().getPerms();
     }
+
+    public static String getLoginMemberOpenid() {
+        return getLoginUser().getOpenid();
+    }
 }

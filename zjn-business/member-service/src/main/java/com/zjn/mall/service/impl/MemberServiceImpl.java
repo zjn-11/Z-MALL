@@ -1,11 +1,14 @@
 package com.zjn.mall.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zjn.mall.service.MemberAddrService;
 import com.zjn.mall.service.MemberCollectionService;
+import com.zjn.mall.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,16 +16,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zjn.mall.domain.Member;
 import com.zjn.mall.mapper.MemberMapper;
 import com.zjn.mall.service.MemberService;
+
 /**
- * @ClassName MemberServiceImpl
  * @author 张健宁
+ * @ClassName MemberServiceImpl
  * @Description TODO
  * @createTime 2024年09月12日 12:40:00
  */
 
 @Service
 @RequiredArgsConstructor
-public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> implements MemberService{
+public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> implements MemberService {
 
     private final MemberMapper memberMapper;
     private final MemberAddrService memberAddrService;
@@ -31,6 +35,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     /**
      * 删除用户信息：
      * 还需要地址和收藏信息
+     *
      * @param ids
      * @return
      */
@@ -46,5 +51,17 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
             });
         }
         return updateBatchById(members);
+    }
+
+    @Override
+    public Boolean modifyMemberInfoByOpenId(Member member) {
+        // 获取会员openid
+        String openid = AuthUtils.getLoginMemberOpenid();
+        member.setOpenId(openid);
+        int update = memberMapper.update(member,
+                new LambdaQueryWrapper<Member>()
+                        .eq(Member::getOpenId, openid)
+        );
+        return update > 0;
     }
 }
