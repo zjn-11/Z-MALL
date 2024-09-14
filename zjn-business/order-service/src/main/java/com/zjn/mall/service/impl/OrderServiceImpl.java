@@ -47,7 +47,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     /**
      * 多条件分页查询订单
-     *
+     * 可以查询所有状态的订单，包括已删除的订单
      * @param orderPage
      * @param orderNumber
      * @param status
@@ -138,7 +138,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     /**
      * 多条件分页查询会员的订单
-     *
+     * 需要排除掉被删除订单，即只需要deleteStatus = 0 的订单
      * @param orderPage
      * @param status
      * @return
@@ -150,6 +150,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<Order>()
                 .eq(Order::getOpenId, openid)
                 .eq(!status.equals(0), Order::getStatus, status)
+                .eq(Order::getDeleteStatus, 0)
                 .orderByDesc(Order::getCreateTime);
 
         orderPage = page(orderPage, queryWrapper);

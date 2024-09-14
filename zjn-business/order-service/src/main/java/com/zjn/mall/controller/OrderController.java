@@ -1,5 +1,6 @@
 package com.zjn.mall.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Order;
 import com.zjn.mall.domain.OrderItem;
@@ -11,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,9 +53,23 @@ public class OrderController {
     }
 
     @ApiOperation("会员确认收货")
-    @PutMapping("receipt")
-    public Result<String> receiptMemberOrder(@RequestParam String orderNumber) {
+    @PutMapping("receipt/{orderNumber}")
+    public Result<String> receiptMemberOrder(@PathVariable String orderNumber) {
         Boolean receipt = orderService.receiptMemberOrder(orderNumber);
         return Result.handle(receipt);
+    }
+
+    @ApiOperation("会员删除已完成订单")
+    @DeleteMapping("{orderNumber}")
+    public Result<String> removeMemberOrder(@PathVariable String orderNumber) {
+        boolean update = orderService.update(
+                Order.builder()
+                        .deleteStatus(1)
+                        .updateTime(new Date())
+                        .build(),
+                new LambdaQueryWrapper<Order>()
+                        .eq(Order::getOrderNumber, orderNumber)
+        );
+        return Result.handle(update);
     }
 }
