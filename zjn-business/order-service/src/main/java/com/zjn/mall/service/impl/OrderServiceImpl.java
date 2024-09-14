@@ -22,6 +22,7 @@ import com.zjn.mall.service.OrderService;
 import com.zjn.mall.util.AuthUtils;
 import com.zjn.mall.vo.OrderStatusCountVO;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -161,6 +162,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     /**
      * 获取订单详细信息
+     *
      * @param orderNumber
      * @return
      */
@@ -191,6 +193,26 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         order.setOrderItemDtos(orderItems);
 
         return order;
+    }
+
+    /**
+     * 会员确认收货
+     * 状态变为5：已完成
+     *
+     * @param orderNumber
+     * @return
+     */
+    @Override
+    public Boolean receiptMemberOrder(String orderNumber) {
+        Order order = Order.builder()
+                .finallyTime(new Date())
+                .updateTime(new Date())
+                .status(5)
+                .build();
+        return orderMapper.update(order,
+                new LambdaQueryWrapper<Order>()
+                        .eq(Order::getOrderNumber, orderNumber)
+        ) > 0;
     }
 
     /**

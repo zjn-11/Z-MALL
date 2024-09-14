@@ -28,4 +28,6 @@ public interface OrderService extends IService<Order>{
     Page<Order> queryMemberOrderPage(Page<Order> orderPage, Integer status);
 
     Order queryOrderDetailByOrderNumber(String orderNumber);
+
+    Boolean receiptMemberOrder(String orderNumber);
 }
