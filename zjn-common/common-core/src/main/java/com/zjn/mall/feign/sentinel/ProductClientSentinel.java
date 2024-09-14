@@ -19,7 +19,7 @@ import java.util.List;
 public class ProductClientSentinel implements ProductClient {
 
     @Override
-    public Result<List<Prod>> loadProdInfoById(List<Long> id) {
+    public Result<List<Prod>> loadProdInfoByIds(List<Long> id) {
         log.error("根据多个id查询商品信息集合，接口调用失败！！！");
         return null;
     }

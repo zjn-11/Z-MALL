@@ -5,9 +5,7 @@ import com.zjn.mall.domain.Prod;
 import com.zjn.mall.feign.sentinel.ProductClientSentinel;
 import com.zjn.mall.model.Result;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -24,5 +22,7 @@ import java.util.List;
 public interface ProductClient {
 
     @GetMapping("prod/prod/getProdListByIds")
-    Result<List<Prod>> loadProdInfoById(@RequestParam List<Long> prodIdList);
+    Result<List<Prod>> loadProdInfoByIds(@RequestParam List<Long> prodIdList);
+
+
 }

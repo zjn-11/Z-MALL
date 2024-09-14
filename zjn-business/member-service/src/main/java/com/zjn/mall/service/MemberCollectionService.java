@@ -1,8 +1,11 @@
 package com.zjn.mall.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.MemberCollection;
 import com.baomidou.mybatisplus.extension.service.IService;
-    /**
+import com.zjn.mall.domain.Prod;
+
+/**
  * @ClassName MemberCollectionService
  * @author 张健宁
  * @Description TODO
@@ -11,5 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface MemberCollectionService extends IService<MemberCollection>{
 
-
+    Page<Prod> queryMemberCollectionPage(Page<Prod> prodPage);
 }

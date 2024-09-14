@@ -8,7 +8,6 @@ import com.zjn.mall.feign.ProductClient;
 import com.zjn.mall.model.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -61,7 +60,7 @@ public class IndexImgServiceImpl extends ServiceImpl<IndexImgMapper, IndexImg> i
         if (type.equals(0)) {
             // 需要获取商品信息
             Long prodId = indexImg.getProdId();
-            Result<List<Prod>> result = productClient.loadProdInfoById(Collections.singletonList(prodId));
+            Result<List<Prod>> result = productClient.loadProdInfoByIds(Collections.singletonList(prodId));
             // 判断是否正确
             if (BusinessEnum.OPERATION_FAIL.getCode().equals(result.getCode())) {
                 throw new BusinessException(result.getMsg());
