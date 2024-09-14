@@ -15,4 +15,10 @@ import java.util.List;
 public interface MemberAddrService extends IService<MemberAddr>{
 
     List<MemberAddr> queryMemberAddrByOpenId(String openid);
+
+    Boolean saveMemberAddr(MemberAddr memberAddr, String openid);
+
+    Boolean modifyMemberAddr(MemberAddr memberAddr, String openid);
+
+    Boolean removeModifyMemberAddr(Long addrId, String openid);
 }

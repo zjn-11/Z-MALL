@@ -1,5 +1,6 @@
 package com.zjn.mall.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zjn.mall.domain.Area;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.AreaService;
@@ -7,10 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,6 +31,16 @@ public class AreaController {
     @PreAuthorize("hasAnyAuthority('admin:area:list')")
     public Result<List<Area>> loadALLAreaList() {
         List<Area> areaList = areaService.queryALLAreaList();
+        return Result.success(areaList);
+    }
+
+    @ApiOperation("新增收货地址：根据父节点查询子节点地区集合（省-市-区）")
+    @GetMapping("mall/listByPid")
+    public Result<List<Area>> loadAreaInfoByPid(@RequestParam String pid) {
+        List<Area> areaList = areaService.list(
+                new LambdaQueryWrapper<Area>()
+                        .eq(Area::getParentId, pid)
+        );
         return Result.success(areaList);
     }
 

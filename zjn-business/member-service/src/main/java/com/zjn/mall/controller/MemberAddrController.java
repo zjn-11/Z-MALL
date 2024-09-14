@@ -10,11 +10,9 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -44,5 +42,36 @@ public class MemberAddrController {
         String openid = AuthUtils.getLoginMemberOpenid();
         List<MemberAddr> addrList = memberAddrService.queryMemberAddrByOpenId(openid);
         return Result.success(addrList);
+    }
+
+    @ApiOperation("新增用户收货地址")
+    @PostMapping
+    public Result<String> saveMemberAddr(@RequestBody MemberAddr memberAddr) {
+        String openid = AuthUtils.getLoginMemberOpenid();
+        Boolean save = memberAddrService.saveMemberAddr(memberAddr, openid);
+        return Result.handle(save);
+    }
+
+    @ApiOperation("根据地址id查询出地址信息")
+    @GetMapping("addrInfo/{addrId}")
+    public Result<MemberAddr> loadMemberAddrByAddrId(@PathVariable Long addrId) {
+        MemberAddr memberAddr = memberAddrService.getById(addrId);
+        return Result.success(memberAddr);
+    }
+
+    @ApiOperation("修改会员收货地址信息")
+    @PutMapping
+    public Result<String> modifyMemberAddr(@RequestBody MemberAddr memberAddr) {
+        String openid = AuthUtils.getLoginMemberOpenid();
+        Boolean modify = memberAddrService.modifyMemberAddr(memberAddr, openid);
+        return Result.handle(modify);
+    }
+
+    @ApiOperation("删除会员收货地址信息")
+    @DeleteMapping("deleteAddr/{addrId}")
+    public Result<String> removeModifyMemberAddr(@PathVariable Long addrId) {
+        String openid = AuthUtils.getLoginMemberOpenid();
+        Boolean remove = memberAddrService.removeModifyMemberAddr(addrId, openid);
+        return Result.handle(remove);
     }
 }
