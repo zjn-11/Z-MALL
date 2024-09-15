@@ -79,6 +79,13 @@ public class ProdController {
         return Result.handle(remove);
     }
 
+    @ApiOperation("小程序：根据商品id查询商品信息")
+    @GetMapping("prod/prodInfo")
+    public Result<Prod> loadWxProdDetail(@RequestParam Long prodId) {
+        Prod prod = prodService.queryProdInfoById(prodId);
+        return Result.success(prod);
+    }
+
     ///////////////////////////////////feign 接口///////////////////////////////////
 
     @ApiOperation("根据id集合查询商品集合")

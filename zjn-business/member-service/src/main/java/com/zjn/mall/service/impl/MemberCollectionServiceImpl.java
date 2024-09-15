@@ -1,6 +1,7 @@
 package com.zjn.mall.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.constants.BusinessEnum;
@@ -67,5 +68,24 @@ public class MemberCollectionServiceImpl extends ServiceImpl<MemberCollectionMap
         prodPage.setPages(memberCollectionPage.getPages());
 
         return prodPage;
+    }
+
+    /**
+     * 小程序：根据商品id查询商品是否被收藏
+     * @param prodId
+     * @param openid
+     * @return
+     */
+    @Override
+    public Boolean checkIsCollectionByProdId(Long prodId, String openid) {
+        MemberCollection memberCollection = memberCollectionMapper.selectOne(
+                new LambdaQueryWrapper<MemberCollection>()
+                        .eq(MemberCollection::getProdId, prodId)
+                        .eq(MemberCollection::getOpenId, openid)
+        );
+        if (ObjectUtil.isNull(memberCollection)) {
+            return false;
+        }
+        return true;
     }
 }

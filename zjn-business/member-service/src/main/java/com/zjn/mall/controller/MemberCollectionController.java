@@ -51,4 +51,12 @@ public class MemberCollectionController {
         prodPage =  memberCollectionService.queryMemberCollectionPage(prodPage);
         return Result.success(prodPage);
     }
+
+    @ApiOperation("小程序：根据商品id查询商品是否被收藏")
+    @GetMapping("isCollection")
+    public Result<Boolean> checkIsCollectionByProdId(@RequestParam Long prodId) {
+        String openid = AuthUtils.getLoginMemberOpenid();
+        Boolean flag = memberCollectionService.checkIsCollectionByProdId(prodId, openid);
+        return Result.success(flag);
+    }
 }
