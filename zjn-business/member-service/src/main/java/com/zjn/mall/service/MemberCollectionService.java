@@ -17,4 +17,6 @@ public interface MemberCollectionService extends IService<MemberCollection>{
     Page<Prod> queryMemberCollectionPage(Page<Prod> prodPage);
 
     Boolean checkIsCollectionByProdId(Long prodId, String openid);
+
+    Boolean addOrCancelMemberCollection(Long prodId, String openid);
 }

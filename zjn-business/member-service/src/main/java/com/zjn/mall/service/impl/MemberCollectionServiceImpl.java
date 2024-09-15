@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,5 +89,69 @@ public class MemberCollectionServiceImpl extends ServiceImpl<MemberCollectionMap
             return false;
         }
         return true;
+    }
+
+    /**
+     * 小程序：添加或取消商品收藏
+     * @param prodId
+     * @return
+     */
+    @Override
+    public Boolean addOrCancelMemberCollection(Long prodId, String openid) {
+        Integer count = memberCollectionMapper.selectCount(
+                new LambdaQueryWrapper<MemberCollection>()
+                        .eq(MemberCollection::getOpenId, openid)
+                        .eq(MemberCollection::getProdId, prodId)
+        );
+        if (count == 0) {
+            MemberCollection memberCollection = new MemberCollection();
+            memberCollection.setCreateTime(new Date());
+            memberCollection.setOpenId(openid);
+            memberCollection.setProdId(prodId);
+            return memberCollectionMapper.insert(memberCollection) > 0;
+        }
+        return memberCollectionMapper.delete(
+                new LambdaQueryWrapper<MemberCollection>()
+                        .eq(MemberCollection::getOpenId, openid)
+                        .eq(MemberCollection::getProdId, prodId)
+        ) > 0;
+
+        /*方法一：会出现空指针异常？？？*/
+//        List<MemberCollection> memberCollectionList = memberCollectionMapper.selectList(
+//                new LambdaQueryWrapper<MemberCollection>()
+//                        .eq(MemberCollection::getOpenId, openid)
+//                        .eq(MemberCollection::getProdId, prodId)
+//        );
+//
+//        // 记录为空，则添加收藏
+//        if (ObjectUtil.isEmpty(memberCollectionList)) {
+//            MemberCollection memberCollection = new MemberCollection();
+//            memberCollection.setCreateTime(new Date());
+//            memberCollection.setOpenId(openid);
+//            memberCollection.setProdId(prodId);
+//            return memberCollectionMapper.insert(memberCollection) > 0;
+//        }
+//
+//        // 不为空，则取消收藏
+//        return memberCollectionMapper.deleteById(memberCollectionList.get(0).getId()) > 0;
+
+        /*方法二：也会出现空指针异常？？？*/
+//        MemberCollection memberCollection = null;
+//        try {
+//            memberCollection = getOne(
+//                    new LambdaQueryWrapper<MemberCollection>()
+//                            .eq(MemberCollection::getOpenId, openid)
+//                            .eq(MemberCollection::getProdId, prodId)
+//            );
+//        } catch (NullPointerException e) {
+//            // 记录为空，则添加收藏
+//            memberCollection.setCreateTime(new Date());
+//            memberCollection.setOpenId(openid);
+//            memberCollection.setProdId(prodId);
+//            return memberCollectionMapper.insert(memberCollection) > 0;
+//        }
+//
+//        // 不为空，则取消收藏
+//        return memberCollectionMapper.deleteById(memberCollection.getId()) > 0;
     }
 }
