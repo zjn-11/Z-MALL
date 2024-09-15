@@ -27,4 +27,10 @@ public interface ProductConstants {
      * redis中所有商品属性的key
      */
     String ALL_PROD_PROP_LIST_KEY = "'allProdProp'";
+
+    /**
+     * 小程序：redis中所有状态正常的商品分组标签的key
+     */
+    String WX_PROD_TAG_LIST_KEY = "'allProdProp'";
+
 }

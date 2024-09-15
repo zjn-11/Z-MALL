@@ -86,4 +86,11 @@ public class ProdTagController {
         List<ProdTag> prodTagList = prodTagService.loadProdTagList();
         return Result.success(prodTagList);
     }
+
+    @ApiOperation("小程序查询商品分组标签")
+    @GetMapping("prodTagList")
+    public Result<List<ProdTag>> loadWxProdTagList() {
+        List<ProdTag> prodTagList = prodTagService.loadProdTagList();
+        return Result.success(prodTagList);
+    }
 }
