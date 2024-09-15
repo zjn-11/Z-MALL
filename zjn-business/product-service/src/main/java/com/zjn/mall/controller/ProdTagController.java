@@ -4,7 +4,9 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.ProdTag;
+import com.zjn.mall.domain.ProdTagReference;
 import com.zjn.mall.model.Result;
+import com.zjn.mall.service.ProdTagReferenceService;
 import com.zjn.mall.service.ProdTagService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +31,7 @@ import java.util.List;
 public class ProdTagController {
 
     private final ProdTagService prodTagService;
+    private final ProdTagReferenceService prodTagReferenceService;
 
     @ApiOperation("分页查询商品分组标签")
     @GetMapping("page")
@@ -92,5 +95,19 @@ public class ProdTagController {
     public Result<List<ProdTag>> loadWxProdTagList() {
         List<ProdTag> prodTagList = prodTagService.loadProdTagList();
         return Result.success(prodTagList);
+    }
+
+    @ApiOperation("小程序根据分组标签id分页查询商品分组关系集合")
+    @GetMapping("getProdTagReferencePageByTagId")
+    public Result<Page<ProdTagReference>> getProdTagReferencePageByTagId(@RequestParam Long current,
+                                                                         @RequestParam Long size,
+                                                                         @RequestParam Long tagId) {
+        Page<ProdTagReference> prodTagReferencePage = new Page<>(current, size);
+        prodTagReferencePage = prodTagReferenceService.page(prodTagReferencePage, new LambdaQueryWrapper<ProdTagReference>()
+                .eq(ProdTagReference::getTagId, tagId)
+                .eq(ProdTagReference::getStatus, 1)
+                .orderByDesc(ProdTagReference::getCreateTime)
+        );
+        return Result.success(prodTagReferencePage);
     }
 }

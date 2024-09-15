@@ -1,7 +1,10 @@
 package com.zjn.mall.feign;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zjn.mall.config.DefaultFeignConfig;
 import com.zjn.mall.config.FeignInterceptor;
 import com.zjn.mall.domain.Prod;
+import com.zjn.mall.domain.ProdTagReference;
 import com.zjn.mall.feign.sentinel.ProductClientSentinel;
 import com.zjn.mall.model.Result;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -17,12 +20,17 @@ import java.util.List;
  * @createTime 2024年09月11日 23:49:00
  */
 
-@FeignClient(value = "product-service", configuration = {FeignInterceptor.class},
+@FeignClient(value = "product-service", configuration = {FeignInterceptor.class, DefaultFeignConfig.class},
         fallback = ProductClientSentinel.class)
 public interface ProductClient {
 
     @GetMapping("prod/prod/getProdListByIds")
     Result<List<Prod>> loadProdInfoByIds(@RequestParam List<Long> prodIdList);
+
+    @GetMapping("prod/prodTag/getProdTagReferencePageByTagId")
+    Result<Page<ProdTagReference>> getProdTagReferencePageByTagId(@RequestParam Long current,
+                                                                  @RequestParam Long size,
+                                                                  @RequestParam Long tagId);
 
 
 }

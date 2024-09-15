@@ -75,4 +75,10 @@ public class CategoryController {
         return Result.handle(remove);
     }
 
+    @ApiOperation("小程序：查询商品类目集合")
+    @GetMapping("category/list")
+    public Result<String> loadWxCategoryList(@RequestParam Long parentId) {
+        return Result.success(null);
+    }
+
 }

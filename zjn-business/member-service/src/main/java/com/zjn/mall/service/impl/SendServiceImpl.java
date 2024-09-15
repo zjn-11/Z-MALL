@@ -3,7 +3,7 @@ package com.zjn.mall.service.impl;
 import cn.hutool.core.util.RandomUtil;
 import com.aliyun.dysmsapi20170525.Client;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.zjn.mall.AliyunDxProperties;
+import com.zjn.mall.config.AliyunDxProperties;
 import com.zjn.mall.constants.MemberConstants;
 import com.zjn.mall.domain.Member;
 import com.zjn.mall.ex.handler.BusinessException;

@@ -1,4 +1,4 @@
-package com.zjn.mall;
+package com.zjn.mall.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
