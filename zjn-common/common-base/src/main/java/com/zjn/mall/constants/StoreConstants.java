@@ -12,4 +12,9 @@ public interface StoreConstants {
      * 全国地区列表
      */
     String ALL_AREA_LIST_KEY = "'areaList'";
+
+    /**
+     * 用于小程序展示状态正常的轮播图
+     */
+    String WX_INDEX_IMG_KEY = "'wxIndexImg'";
 }

@@ -2,7 +2,10 @@ package com.zjn.mall.service;
 
 import com.zjn.mall.domain.IndexImg;
 import com.baomidou.mybatisplus.extension.service.IService;
-    /**
+
+import java.util.List;
+
+/**
  * @ClassName IndexImgService
  * @author 张健宁
  * @Description TODO
@@ -16,4 +19,8 @@ public interface IndexImgService extends IService<IndexImg>{
     IndexImg queryIndexImgById(Long imgId);
 
     Boolean modifyIndexImg(IndexImg indexImg);
+
+    List<IndexImg> queryWxIndexImgList();
+
+    Boolean removeIndexImgByIds(List<Long> imgIds);
 }

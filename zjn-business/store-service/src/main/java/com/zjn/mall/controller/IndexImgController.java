@@ -73,8 +73,15 @@ public class IndexImgController {
     @ApiOperation("删除轮播图信息")
     @DeleteMapping
     @PreAuthorize("hasAnyAuthority('admin:indexImg:delete')")
-    public Result<String> removeIndexImgById(@RequestBody List<Long> imgIds) {
-        boolean remove = indexImgService.removeByIds(imgIds);
+    public Result<String> removeIndexImgByIds(@RequestBody List<Long> imgIds) {
+        Boolean remove = indexImgService.removeIndexImgByIds(imgIds);
         return Result.handle(remove);
+    }
+
+    @ApiOperation("小程序首页获取轮播图")
+    @GetMapping("indexImgs")
+    public Result<List<IndexImg>> loadWxIndexImgList() {
+        List<IndexImg> indexImgs = indexImgService.queryWxIndexImgList();
+        return Result.success(indexImgs);
     }
 }

@@ -1,12 +1,19 @@
 package com.zjn.mall.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zjn.mall.constants.BusinessEnum;
+import com.zjn.mall.constants.StoreConstants;
 import com.zjn.mall.domain.Prod;
 import com.zjn.mall.ex.handler.BusinessException;
 import com.zjn.mall.feign.ProductClient;
 import com.zjn.mall.model.Result;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.C;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,6 +31,7 @@ import com.zjn.mall.service.IndexImgService;
 
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "com.zjn.mall.service.impl.IndexImgServiceImpl")
 public class IndexImgServiceImpl extends ServiceImpl<IndexImgMapper, IndexImg> implements IndexImgService{
 
     private final IndexImgMapper indexImgMapper;
@@ -36,6 +44,7 @@ public class IndexImgServiceImpl extends ServiceImpl<IndexImgMapper, IndexImg> i
      * @return
      */
     @Override
+    @CacheEvict(key = StoreConstants.WX_INDEX_IMG_KEY)
     public Boolean saveIndexImg(IndexImg indexImg) {
         indexImg.setCreateTime(new Date());
         indexImg.setShopId(1L);
@@ -82,7 +91,35 @@ public class IndexImgServiceImpl extends ServiceImpl<IndexImgMapper, IndexImg> i
      * @return
      */
     @Override
+    @CacheEvict(key = StoreConstants.WX_INDEX_IMG_KEY)
     public Boolean modifyIndexImg(IndexImg indexImg) {
         return indexImgMapper.updateById(indexImg) > 0;
+    }
+
+    /**
+     * 删除轮播图信息
+     * @param imgIds
+     * @return
+     */
+    @Override
+    @CacheEvict(key = StoreConstants.WX_INDEX_IMG_KEY)
+    public Boolean removeIndexImgByIds(List<Long> imgIds) {
+        return indexImgMapper.deleteBatchIds(imgIds) == imgIds.size();
+    }
+
+    /**
+     * 小程序首页获取轮播图
+     * 查询出状态正常 status=1 的轮播图
+     * 并存入redis中
+     * @return
+     */
+    @Override
+    @Cacheable(key = StoreConstants.WX_INDEX_IMG_KEY)
+    public List<IndexImg> queryWxIndexImgList() {
+        return indexImgMapper.selectList(
+                new LambdaQueryWrapper<IndexImg>()
+                        .eq(IndexImg::getStatus, 1)
+                        .orderByDesc(IndexImg::getSeq)
+        );
     }
 }
