@@ -7,6 +7,7 @@ package com.zjn.mall.controller;
  * @createTime 2024年09月09日 23:14:00
  */
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zjn.mall.domain.Category;
 import com.zjn.mall.ex.handler.BusinessException;
 import com.zjn.mall.model.Result;
@@ -19,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Api("商品类目控制层")
 @RestController
@@ -84,6 +86,20 @@ public class CategoryController {
         }
         List<Category> categoryList = categoryService.queryFirstCategoryList();
         return Result.success(categoryList);
+    }
+
+    @ApiOperation("小程序：根据父目录id得到所有子目录的id集合")
+    @GetMapping("getCategoryChildIdsByCategoryId")
+    public Result<List<Long>> getCategoryChildIdsByCategoryId(@RequestParam Long categoryId){
+        List<Category> categoryList = categoryService.list(
+                new LambdaQueryWrapper<Category>()
+                        .eq(Category::getParentId, categoryId)
+                        .eq(Category::getStatus, 1)
+                        .orderByDesc(Category::getSeq)
+                        .select(Category::getCategoryId)
+        );
+        List<Long> ids = categoryList.stream().map(Category::getCategoryId).collect(Collectors.toList());
+        return Result.success(ids);
     }
 
 }

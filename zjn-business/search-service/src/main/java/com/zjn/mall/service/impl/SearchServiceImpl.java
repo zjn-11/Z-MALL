@@ -12,6 +12,7 @@ import com.zjn.mall.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,5 +67,35 @@ public class SearchServiceImpl implements SearchService {
         prodPage.setPages(prodTagReferencePage.getPages());
 
         return prodPage;
+    }
+
+    /**
+     * 小程序：根据商品类目id查询商品集合
+     * 1. 当前传入的只是商品一级类目
+     * 2. 需要查询出该一级类目下所有子类目所对应的商品
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public List<Prod> queryWxProdListByCategoryId(Long categoryId) {
+        ArrayList<Long> categoryList = new ArrayList<>();
+
+        // 查询出当前categoryId所对应的子类目集合
+        Result<List<Long>> resultCategory = productClient.getCategoryChildIdsByCategoryId(categoryId);
+        if (resultCategory.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign接口：获取类目的子目录id集合失败，请重试！");
+        }
+        List<Long> childrenId = resultCategory.getData();
+        if (CollectionUtil.isNotEmpty(childrenId)) {
+            categoryList.addAll(childrenId);
+        }
+        categoryList.add(categoryId);
+
+        // 根据所有的类目id查询出对应的商品信息
+        Result<List<Prod>> resultProd = productClient.getProdListByCategoryIds(categoryList);
+        if (resultProd.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign接口：获取类目的子目录id集合失败，请重试！");
+        }
+        return resultProd.getData();
     }
 }

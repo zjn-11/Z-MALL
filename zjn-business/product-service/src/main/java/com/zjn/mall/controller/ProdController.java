@@ -87,4 +87,16 @@ public class ProdController {
         List<Prod> prods = prodService.listByIds(prodIdList);
         return Result.success(prods);
     }
+
+    @ApiOperation("根据类目id集合查询商品信息")
+    @GetMapping("getProdListByCategoryIds")
+    public Result<List<Prod>> getProdListByCategoryIds(@RequestParam List<Long> categoryIds) {
+        List<Prod> prodList = prodService.list(
+                new LambdaQueryWrapper<Prod>()
+                        .in(Prod::getCategoryId, categoryIds)
+                        .eq(Prod::getStatus, 1)
+                        .orderByDesc(Prod::getSoldNum)
+        );
+        return Result.success(prodList);
+    }
 }

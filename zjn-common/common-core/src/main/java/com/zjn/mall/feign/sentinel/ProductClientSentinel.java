@@ -31,4 +31,16 @@ public class ProductClientSentinel implements ProductClient {
         log.error("根据分组标签id分页查询商品标签关系集合，接口调用失败！！！");
         return null;
     }
+
+    @Override
+    public Result<List<Long>> getCategoryChildIdsByCategoryId(Long categoryId) {
+        log.error("根据类目id查询子类目集合，接口调用失败！！！");
+        return null;
+    }
+
+    @Override
+    public Result<List<Prod>> getProdListByCategoryIds(List<Long> categoryIds) {
+        log.error("根据类目id集合查询商品信息集合，接口调用失败！！！");
+        return null;
+    }
 }

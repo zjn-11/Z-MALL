@@ -32,5 +32,9 @@ public interface ProductClient {
                                                                   @RequestParam Long size,
                                                                   @RequestParam Long tagId);
 
+    @GetMapping("prod/category/getCategoryChildIdsByCategoryId")
+    Result<List<Long>> getCategoryChildIdsByCategoryId(@RequestParam Long categoryId);
 
+    @GetMapping("prod/prod/getProdListByCategoryIds")
+    Result<List<Prod>> getProdListByCategoryIds(@RequestParam List<Long> categoryIds);
 }

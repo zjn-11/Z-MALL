@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * @author 张健宁
  * @ClassName SearchController
@@ -33,5 +35,12 @@ public class SearchController {
                                                     @RequestParam Long tagId) {
         Page<Prod> prodPage = searchService.queryWxProdPageByTagId(current, size, tagId);
         return Result.success(prodPage);
+    }
+
+    @ApiOperation("小程序：根据商品类目id查询商品集合")
+    @GetMapping("prod/category/prod/list")
+    public Result<List<Prod>> loadWxProdListByCategoryId(@RequestParam Long categoryId) {
+        List<Prod> prodList = searchService.queryWxProdListByCategoryId(categoryId);
+        return Result.success(prodList);
     }
 }
