@@ -1,6 +1,7 @@
 package com.zjn.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.sun.javafx.binding.StringConstant;
 import com.zjn.mall.constants.StoreConstants;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Not;
@@ -8,6 +9,7 @@ import org.checkerframework.checker.units.qual.C;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,11 +39,15 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
 
     /**
      * 保存公告信息
+     *
      * @param notice
      * @return
      */
     @Override
-    @CacheEvict(key = StoreConstants.WX_TOP_NOTICE_LIST_KEY)
+    @Caching(evict = {
+            @CacheEvict(key = StoreConstants.WX_TOP_NOTICE_LIST_KEY),
+            @CacheEvict(key = StoreConstants.WX_ALL_NOTICE_LIST_KEY)
+    })
     public Boolean saveShopNotice(Notice notice) {
         notice.setShopId(1L);
         notice.setCreateTime(new Date());
@@ -51,11 +57,15 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
 
     /**
      * 修改公告信息
+     *
      * @param notice
      * @return
      */
     @Override
-    @CacheEvict(key = StoreConstants.WX_TOP_NOTICE_LIST_KEY)
+    @Caching(evict = {
+            @CacheEvict(key = StoreConstants.WX_TOP_NOTICE_LIST_KEY),
+            @CacheEvict(key = StoreConstants.WX_ALL_NOTICE_LIST_KEY)
+    })
     public Boolean modifyShopNotice(Notice notice) {
         notice.setUpdateTime(new Date());
         return noticeMapper.updateById(notice) > 0;
@@ -63,17 +73,22 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
 
     /**
      * 删除公告信息
+     *
      * @param id
      * @return
      */
     @Override
-    @CacheEvict(key = StoreConstants.WX_TOP_NOTICE_LIST_KEY)
+    @Caching(evict = {
+            @CacheEvict(key = StoreConstants.WX_TOP_NOTICE_LIST_KEY),
+            @CacheEvict(key = StoreConstants.WX_ALL_NOTICE_LIST_KEY)
+    })
     public boolean removeById(Serializable id) {
         return super.removeById(id);
     }
 
     /**
      * 小程序查询置顶公告消息
+     *
      * @return
      */
     @Override
@@ -83,6 +98,22 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
                 new LambdaQueryWrapper<Notice>()
                         .eq(Notice::getStatus, 1)
                         .eq(Notice::getIsTop, 1)
+                        .orderByDesc(Notice::getUpdateTime)
+
+        );
+    }
+
+    /**
+     * 小程序查询所有状态正常的公告信息
+     *
+     * @return
+     */
+    @Override
+    @CacheEvict(key = StoreConstants.WX_ALL_NOTICE_LIST_KEY)
+    public List<Notice> queryWxNoticeList() {
+        return noticeMapper.selectList(
+                new LambdaQueryWrapper<Notice>()
+                        .eq(Notice::getStatus, 1)
                         .orderByDesc(Notice::getUpdateTime)
 
         );

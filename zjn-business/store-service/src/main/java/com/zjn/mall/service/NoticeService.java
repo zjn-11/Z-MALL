@@ -20,4 +20,6 @@ public interface NoticeService extends IService<Notice>{
     Boolean modifyShopNotice(Notice notice);
 
     List<Notice> queryWxTopNoticeList();
+
+    List<Notice> queryWxNoticeList();
 }

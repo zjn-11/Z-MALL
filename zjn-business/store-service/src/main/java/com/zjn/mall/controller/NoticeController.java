@@ -87,4 +87,11 @@ public class NoticeController {
         List<Notice> noticeList = noticeService.queryWxTopNoticeList();
         return Result.success(noticeList);
     }
+
+    @ApiOperation("小程序查询所有状态正常的公告信息")
+    @GetMapping("noticeList")
+    public Result<List<Notice>> loadWxNoticeList() {
+        List<Notice> noticeList = noticeService.queryWxNoticeList();
+        return Result.success(noticeList);
+    }
 }

@@ -23,4 +23,9 @@ public interface StoreConstants {
      */
     String WX_TOP_NOTICE_LIST_KEY = "'wxTopNoticeListKey'";
 
+    /**
+     * 小程序所有公告集合
+     */
+    String WX_ALL_NOTICE_LIST_KEY = "'wxAllNoticeListKey'";
+
 }
