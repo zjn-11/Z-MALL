@@ -8,6 +8,7 @@ package com.zjn.mall.controller;
  */
 
 import com.zjn.mall.domain.Category;
+import com.zjn.mall.ex.handler.BusinessException;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.CategoryService;
 import io.swagger.annotations.Api;
@@ -77,8 +78,12 @@ public class CategoryController {
 
     @ApiOperation("小程序：查询商品类目集合")
     @GetMapping("category/list")
-    public Result<String> loadWxCategoryList(@RequestParam Long parentId) {
-        return Result.success(null);
+    public Result<List<Category>> loadWxCategoryList(@RequestParam Long parentId) {
+        if (!parentId.equals(0L)) {
+            throw new BusinessException("只能查询父级目录！");
+        }
+        List<Category> categoryList = categoryService.queryFirstCategoryList();
+        return Result.success(categoryList);
     }
 
 }
