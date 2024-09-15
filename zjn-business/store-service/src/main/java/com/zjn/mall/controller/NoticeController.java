@@ -94,4 +94,11 @@ public class NoticeController {
         List<Notice> noticeList = noticeService.queryWxNoticeList();
         return Result.success(noticeList);
     }
+
+    @ApiOperation("小程序根据id查询公告详情")
+    @GetMapping("detail/{id}")
+    public Result<Notice> loadWxNoticeDetailById(@PathVariable Long id) {
+        Notice notice = noticeService.getById(id);
+        return Result.success(notice);
+    }
 }
