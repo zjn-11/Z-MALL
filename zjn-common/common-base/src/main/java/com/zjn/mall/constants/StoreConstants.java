@@ -14,7 +14,13 @@ public interface StoreConstants {
     String ALL_AREA_LIST_KEY = "'areaList'";
 
     /**
-     * 用于小程序展示状态正常的轮播图
+     * 小程序展示状态正常的轮播图
      */
     String WX_INDEX_IMG_KEY = "'wxIndexImg'";
+
+    /**
+     * 小程序置顶公告集合
+     */
+    String WX_TOP_NOTICE_LIST_KEY = "'wxTopNoticeListKey'";
+
 }

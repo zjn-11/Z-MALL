@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author 张健宁
  * @ClassName NoticeController
@@ -77,5 +79,12 @@ public class NoticeController {
     public Result<String> removeShopNotice(@PathVariable Long id) {
         boolean remove = noticeService.removeById(id);
         return Result.handle(remove);
+    }
+
+    @ApiOperation("小程序查询置顶的公告信息")
+    @GetMapping("topNoticeList")
+    public Result<List<Notice>> loadWxTopNoticeList() {
+        List<Notice> noticeList = noticeService.queryWxTopNoticeList();
+        return Result.success(noticeList);
     }
 }
