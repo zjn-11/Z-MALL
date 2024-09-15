@@ -74,4 +74,12 @@ public class MemberAddrController {
         Boolean remove = memberAddrService.removeModifyMemberAddr(addrId, openid);
         return Result.handle(remove);
     }
+
+    @ApiOperation("设置默认收货地址")
+    @PutMapping("defaultAddr/{addrId}")
+    public Result<String> setDefaultAddr(@PathVariable Long addrId) {
+        String openid = AuthUtils.getLoginMemberOpenid();
+        Boolean set = memberAddrService.setDefaultAddr(addrId, openid);
+        return Result.handle(set);
+    }
 }

@@ -21,4 +21,6 @@ public interface MemberAddrService extends IService<MemberAddr>{
     Boolean modifyMemberAddr(MemberAddr memberAddr, String openid);
 
     Boolean removeModifyMemberAddr(Long addrId, String openid);
+
+    Boolean setDefaultAddr(Long addrId, String openid);
 }

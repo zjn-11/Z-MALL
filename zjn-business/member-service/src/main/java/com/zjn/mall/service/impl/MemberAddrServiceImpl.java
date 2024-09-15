@@ -11,8 +11,10 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zjn.mall.domain.MemberAddr;
 import com.zjn.mall.mapper.MemberAddrMapper;
@@ -20,8 +22,8 @@ import com.zjn.mall.service.MemberAddrService;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @ClassName MemberAddrServiceImpl
  * @author 张健宁
+ * @ClassName MemberAddrServiceImpl
  * @Description TODO
  * @createTime 2024年09月12日 12:40:00
  */
@@ -29,12 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "com.zjn.mall.service.impl.MemberAddrServiceImpl")
-public class MemberAddrServiceImpl extends ServiceImpl<MemberAddrMapper, MemberAddr> implements MemberAddrService{
+public class MemberAddrServiceImpl extends ServiceImpl<MemberAddrMapper, MemberAddr> implements MemberAddrService {
 
     private final MemberAddrMapper memberAddrMapper;
 
     /**
      * 查询会员收货地址，并存放到redis中
+     *
      * @param openid
      * @return
      */
@@ -53,6 +56,7 @@ public class MemberAddrServiceImpl extends ServiceImpl<MemberAddrMapper, MemberA
     /**
      * 新增会员收货地址
      * 如果是会员的第一个地址，则设置为默认地址
+     *
      * @param memberAddr
      * @return
      */
@@ -75,6 +79,7 @@ public class MemberAddrServiceImpl extends ServiceImpl<MemberAddrMapper, MemberA
 
     /**
      * 修改会员收货地址信息
+     *
      * @param memberAddr
      * @param openid
      * @return
@@ -86,12 +91,13 @@ public class MemberAddrServiceImpl extends ServiceImpl<MemberAddrMapper, MemberA
         return memberAddrMapper.update(memberAddr,
                 new LambdaQueryWrapper<MemberAddr>()
                         .eq(MemberAddr::getOpenId, openid)
-                ) > 0;
+        ) > 0;
     }
 
     /**
      * 删除收货地址
      * 如果删除的是默认收货地址，则需要指定一个
+     *
      * @param addrId
      * @param openid
      * @return
@@ -118,5 +124,37 @@ public class MemberAddrServiceImpl extends ServiceImpl<MemberAddrMapper, MemberA
             }
         }
         return memberAddrMapper.deleteById(addrId) > 0;
+    }
+
+    /**
+     * 设置默认收货地址
+     *
+     * @param addrId
+     * @param openid
+     * @return
+     */
+    @Override
+    @CacheEvict(key = "#openid")
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean setDefaultAddr(Long addrId, String openid) {
+        MemberAddr newMemberAddr = memberAddrMapper.selectById(addrId);
+        if (newMemberAddr.getCommonAddr().equals(1)) {
+            // 如果选择的本来就是默认地址，则直接返回
+            return true;
+        }
+        newMemberAddr.setCommonAddr(1);
+        newMemberAddr.setUpdateTime(new Date());
+
+        // 将原来的默认地址改为非默认
+        MemberAddr memberAddr = new MemberAddr();
+        memberAddr.setCommonAddr(0);
+        memberAddr.setUpdateTime(new Date());
+        memberAddrMapper.update(memberAddr,
+                new LambdaQueryWrapper<MemberAddr>()
+                        .eq(MemberAddr::getOpenId, openid)
+                        .eq(MemberAddr::getCommonAddr, 1)
+        );
+
+        return memberAddrMapper.updateById(newMemberAddr) > 0;
     }
 }
