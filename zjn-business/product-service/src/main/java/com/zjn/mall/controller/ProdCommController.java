@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.ProdComm;
+import com.zjn.mall.dto.ProdCommonViewDto;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.ProdCommService;
 import io.swagger.annotations.Api;
@@ -59,5 +60,12 @@ public class ProdCommController {
     public Result<String> modifyProdComm(@RequestBody ProdComm prodComm) {
         Boolean modify = prodCommService.modifyProdComm(prodComm);
         return Result.handle(modify);
+    }
+
+    @ApiOperation("小程序：根据商品Id返回商品评论总览数据")
+    @GetMapping("prodComm/prodCommData")
+    public Result<ProdCommonViewDto> loadProdCommonViewByProdId(@RequestParam Long prodId) {
+        ProdCommonViewDto prodCommonViewDto = prodCommService.ProdCommonViewByProdId(prodId);
+        return Result.success(prodCommonViewDto);
     }
 }

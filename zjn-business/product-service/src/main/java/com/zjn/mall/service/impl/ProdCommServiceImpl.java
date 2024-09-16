@@ -1,11 +1,17 @@
 package com.zjn.mall.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.zjn.mall.dto.ProdCommonViewDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zjn.mall.mapper.ProdCommMapper;
 import com.zjn.mall.domain.ProdComm;
@@ -39,5 +45,62 @@ public class ProdCommServiceImpl extends ServiceImpl<ProdCommMapper, ProdComm> i
             prodComm.setReplyTime(new Date());
         }
         return prodCommMapper.updateById(prodComm) > 0;
+    }
+
+    /**
+     * 小程序：根据商品Id返回商品评论总览数据
+     * 0好评 1中评 2差评
+     * 总评论数
+     * 有图的评论数量
+     * 好评率
+     * @param prodId
+     * @return
+     */
+    @Override
+    public ProdCommonViewDto ProdCommonViewByProdId(Long prodId) {
+        ProdCommonViewDto prodCommonViewDto = new ProdCommonViewDto();
+
+        List<ProdComm> prodCommList = prodCommMapper.selectList(
+                new LambdaQueryWrapper<ProdComm>()
+                        .eq(ProdComm::getProdId, prodId)
+                        .eq(ProdComm::getStatus, 1)
+        );
+        if (CollectionUtil.isEmpty(prodCommList)) {
+            return prodCommonViewDto;
+        }
+
+        AtomicInteger good = new AtomicInteger();
+        AtomicInteger second = new AtomicInteger();
+        AtomicInteger bad = new AtomicInteger();
+        AtomicInteger picCount = new AtomicInteger();
+        prodCommList.forEach(prodComm -> {
+            if (prodComm.getEvaluate().equals(0)) {
+                good.getAndIncrement();
+            } else if (prodComm.getEvaluate().equals(1)) {
+                second.getAndIncrement();
+            } else if (prodComm.getEvaluate().equals(2)) {
+                bad.getAndIncrement();
+            }
+            if (StringUtils.hasText(prodComm.getPics())) {
+                picCount.getAndIncrement();
+            }
+        });
+
+        prodCommonViewDto.setAllCount(prodCommList.size());
+        prodCommonViewDto.setGoodCount(good.get());
+        prodCommonViewDto.setSecondCount(second.get());
+        prodCommonViewDto.setBadCount(bad.get());
+        prodCommonViewDto.setPicCount(picCount.get());
+        if (prodCommList.size() != 0) {
+            prodCommonViewDto.setGoodLv(
+                    new BigDecimal(good.get())
+                            .divide(new BigDecimal(prodCommList.size()),
+                            3, RoundingMode.HALF_DOWN)
+                            .multiply(new BigDecimal(100))
+            );
+        } else {
+            prodCommonViewDto.setGoodLv(BigDecimal.ZERO);
+        }
+        return prodCommonViewDto;
     }
 }
