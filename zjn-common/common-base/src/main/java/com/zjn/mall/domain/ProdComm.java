@@ -155,5 +155,19 @@ public class ProdComm implements Serializable {
     @Schema(description="店铺")
     private Long shopId;
 
+    /**
+     * 用户名称（Wx查询评论使用）
+     */
+    @TableField(exist = false)
+    @Schema(description = "会员昵称")
+    private String nickName;
+
+    /**
+     * 用户头像（Wx查询评论使用）
+     */
+    @TableField(exist = false)
+    @Schema(description = "会员头像")
+    private String pic;
+
     private static final long serialVersionUID = 1L;
 }

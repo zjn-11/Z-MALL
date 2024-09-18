@@ -90,4 +90,14 @@ public class SysMemberController {
         );
         return Result.success(member.getNickName());
     }
+
+    @ApiOperation("feign：根据openid集合获取会员信息集合")
+    @GetMapping("getMembersByOpenidList")
+    public Result<List<Member>> getMembersByOpenidList(@RequestParam List<String> openidList) {
+        List<Member> memberList = memberService.list(
+                new LambdaQueryWrapper<Member>()
+                        .in(Member::getOpenId, openidList)
+        );
+        return Result.success(memberList);
+    }
 }

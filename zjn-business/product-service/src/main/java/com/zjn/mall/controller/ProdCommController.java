@@ -14,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author 张健宁
  * @ClassName ProdCommController
@@ -67,5 +69,15 @@ public class ProdCommController {
     public Result<ProdCommonViewDto> loadProdCommonViewByProdId(@RequestParam Long prodId) {
         ProdCommonViewDto prodCommonViewDto = prodCommService.ProdCommonViewByProdId(prodId);
         return Result.success(prodCommonViewDto);
+    }
+
+    @ApiOperation("小程序：多条件分页查询评论信息")
+    @GetMapping("prodComm/prodCommPageByProd")
+    public Result<Page<ProdComm>> loadWxProdCommPageByProd(@RequestParam Long prodId,
+                                                   @RequestParam Long size,
+                                                   @RequestParam Long current,
+                                                   @RequestParam Integer evaluate) {
+        Page<ProdComm> prodCommPage = prodCommService.queryWxProdCommPageByProd(prodId, size, current, evaluate);
+        return Result.success(prodCommPage);
     }
 }

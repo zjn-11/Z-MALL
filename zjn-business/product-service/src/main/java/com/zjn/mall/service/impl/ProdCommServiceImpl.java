@@ -2,7 +2,13 @@ package com.zjn.mall.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zjn.mall.constants.BusinessEnum;
+import com.zjn.mall.domain.Member;
 import com.zjn.mall.dto.ProdCommonViewDto;
+import com.zjn.mall.ex.handler.BusinessException;
+import com.zjn.mall.feign.MemberClient;
+import com.zjn.mall.model.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +17,7 @@ import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zjn.mall.mapper.ProdCommMapper;
@@ -30,6 +37,8 @@ import org.springframework.util.StringUtils;
 public class ProdCommServiceImpl extends ServiceImpl<ProdCommMapper, ProdComm> implements ProdCommService{
 
     private final ProdCommMapper prodCommMapper;
+
+    private final MemberClient memberClient;
 
     /**
      * 编辑：恢复和审核评论
@@ -102,5 +111,54 @@ public class ProdCommServiceImpl extends ServiceImpl<ProdCommMapper, ProdComm> i
             prodCommonViewDto.setGoodLv(BigDecimal.ZERO);
         }
         return prodCommonViewDto;
+    }
+
+    /**
+     * 小程序：多条件分页查询评论信息
+     * @param prodId
+     * @param size
+     * @param current
+     * @param evaluate
+     * @return
+     */
+    @Override
+    public Page<ProdComm> queryWxProdCommPageByProd(Long prodId, Long size, Long current, Integer evaluate) {
+        Page<ProdComm> prodCommPage = new Page<>(current, size);
+        prodCommPage = prodCommMapper.selectPage(prodCommPage,
+                new LambdaQueryWrapper<ProdComm>()
+                        .eq(ProdComm::getProdId, prodId)
+                        .eq(ProdComm::getStatus, 1)
+                        .eq(evaluate.equals(0) || evaluate.equals(1) || evaluate.equals(2), ProdComm::getEvaluate, evaluate)
+                        .isNotNull(evaluate.equals(3), ProdComm::getPics)
+                        .orderByDesc(ProdComm::getScore, ProdComm::getCreateTime)
+        );
+
+        List<ProdComm> prodCommList = prodCommPage.getRecords();
+        if (CollectionUtil.isEmpty(prodCommList)) {
+            return prodCommPage;
+        }
+
+        // 查询所有用户的openid，获取会员对象集合
+        List<String> openidList = prodCommList.stream().map(ProdComm::getOpenId).collect(Collectors.toList());
+        Result<List<Member>> result = memberClient.getMembersByOpenidList(openidList);
+        if (result.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("远程接口：通过openidList获取会员集合失败，请重试！！！");
+        }
+        List<Member> memberList = result.getData();
+        if (CollectionUtil.isEmpty(memberList)) {
+            return prodCommPage;
+        }
+        prodCommList.forEach(prodComm -> {
+            Member m = memberList.stream()
+                    .filter(member -> member.getOpenId().equals(prodComm.getOpenId()))
+                    .collect(Collectors.toList()).get(0);
+            // 会员名称脱敏操作
+            StringBuilder stringBuilder = new StringBuilder(m.getNickName());
+            StringBuilder replace = stringBuilder.replace(1, stringBuilder.length() - 1, "***");
+            prodComm.setNickName(replace.toString());
+            prodComm.setPic(m.getPic());
+        });
+
+        return prodCommPage;
     }
 }

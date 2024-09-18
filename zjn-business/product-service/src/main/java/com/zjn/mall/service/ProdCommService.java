@@ -1,5 +1,6 @@
 package com.zjn.mall.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.ProdComm;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zjn.mall.dto.ProdCommonViewDto;
@@ -16,4 +17,6 @@ public interface ProdCommService extends IService<ProdComm>{
     Boolean modifyProdComm(ProdComm prodComm);
 
     ProdCommonViewDto ProdCommonViewByProdId(Long prodId);
+
+    Page<ProdComm> queryWxProdCommPageByProd(Long prodId, Long size, Long current, Integer evaluate);
 }

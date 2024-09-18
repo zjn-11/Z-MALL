@@ -1,10 +1,13 @@
 package com.zjn.mall.feign.sentinel;
 
+import com.zjn.mall.domain.Member;
 import com.zjn.mall.domain.MemberAddr;
 import com.zjn.mall.feign.MemberClient;
 import com.zjn.mall.model.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author 张健宁
@@ -26,6 +29,12 @@ public class MemberClientSentinel implements MemberClient {
     @Override
     public Result<String> getNickNameByOpenId(String openId) {
         log.error("根据openId查询会员昵称，Feign接口调用失败！！！");
+        return null;
+    }
+
+    @Override
+    public Result<List<Member>> getMembersByOpenidList(List<String> openidList) {
+        log.error("根据openId集合查询会员集合，Feign接口调用失败！！！");
         return null;
     }
 }

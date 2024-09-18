@@ -24,15 +24,15 @@ import java.math.BigDecimal;
 public class ProdCommonViewDto {
 
     @ApiModelProperty("商品评论总数量")
-    private Integer allCount;
+    private Integer allCount = 0;
     @ApiModelProperty("商品评论好评数量")
-    private Integer goodCount;
+    private Integer goodCount = 0;
     @ApiModelProperty("商品评论好评率")
-    private BigDecimal goodLv;
+    private BigDecimal goodLv = BigDecimal.ZERO;
     @ApiModelProperty("商品评论中评数量")
-    private Integer secondCount;
+    private Integer secondCount = 0;
     @ApiModelProperty("商品评论差评数量")
-    private Integer badCount;
+    private Integer badCount = 0;
     @ApiModelProperty("商品评论有图数量")
-    private Integer picCount;
+    private Integer picCount = 0;
 }
