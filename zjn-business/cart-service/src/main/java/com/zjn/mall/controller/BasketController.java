@@ -1,5 +1,6 @@
 package com.zjn.mall.controller;
 
+import com.zjn.mall.domain.Basket;
 import com.zjn.mall.domain.CartTotalAmount;
 import com.zjn.mall.domain.CartVo;
 import com.zjn.mall.domain.Prod;
@@ -48,5 +49,12 @@ public class BasketController {
     public Result<CartTotalAmount> loadSelectedProdPriceByShopIds(@RequestBody List<Long> shopCartIds) {
         CartTotalAmount cartTotalAmount = basketService.querySelectedProdPriceByShopIds(shopCartIds);
         return Result.success(cartTotalAmount);
+    }
+
+    @ApiOperation("购物车添加商品或修改商品数量")
+    @PostMapping("changeItem")
+    public Result<String> modifyBasketProdCount(@RequestBody Basket basket) {
+        Boolean modify = basketService.modifyBasketProdCount(basket);
+        return Result.handle(modify);
     }
 }

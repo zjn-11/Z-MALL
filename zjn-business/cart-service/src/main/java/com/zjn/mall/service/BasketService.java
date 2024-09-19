@@ -23,4 +23,6 @@ public interface BasketService extends IService<Basket>{
     CartVo queryWxCartVoInfo(String openid);
 
     CartTotalAmount querySelectedProdPriceByShopIds(List<Long> shopCartIds);
+
+    Boolean modifyBasketProdCount(Basket basket);
 }

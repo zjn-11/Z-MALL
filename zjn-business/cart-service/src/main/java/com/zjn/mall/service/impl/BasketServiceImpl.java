@@ -2,12 +2,14 @@ package com.zjn.mall.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zjn.mall.constants.BusinessEnum;
 import com.zjn.mall.domain.*;
 import com.zjn.mall.ex.handler.BusinessException;
 import com.zjn.mall.feign.ProductClient;
 import com.zjn.mall.model.Result;
+import com.zjn.mall.util.AuthUtils;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -189,5 +192,36 @@ public class BasketServiceImpl extends ServiceImpl<BasketMapper, Basket> impleme
         }
 
         return cartTotalAmount;
+    }
+
+    /**
+     * 购物车添加商品或修改商品数量
+     * 商品详情页面点击添加购物车：如果已经存在，则是修改，否则就是新增
+     * 购物车页面点击添加或减少：传入的prodCount为正数即为添加，负数则为减少
+     * @param basket
+     * @return
+     */
+    @Override
+    public Boolean modifyBasketProdCount(Basket basket) {
+        String openid = AuthUtils.getLoginMemberOpenid();
+        // 现在购物车查询是否存在该商品
+        Basket wxBasket = basketMapper.selectOne(
+                new LambdaQueryWrapper<Basket>()
+                        .eq(Basket::getOpenId, openid)
+                        .eq(Basket::getSkuId, basket.getSkuId())
+        );
+        if (ObjectUtil.isNotNull(wxBasket)) {
+            // 如果不为空，则说明购物车中已经存在该商品，直接修改数量
+            int prodCount = wxBasket.getProdCount() + basket.getProdCount();
+            if (prodCount < 0) {
+                throw new BusinessException("购物车商品数量不能小于0！！！");
+            }
+            wxBasket.setProdCount(prodCount);
+            return basketMapper.updateById(wxBasket) > 0;
+        }
+        // 如果为空，则需要添加
+        basket.setCreateTime(new Date());
+        basket.setOpenId(openid);
+        return basketMapper.insert(basket) > 0;
     }
 }
