@@ -2,11 +2,14 @@ package com.zjn.mall.controller;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Prod;
 import com.zjn.mall.domain.ProdComm;
+import com.zjn.mall.domain.Sku;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.ProdService;
+import com.zjn.mall.service.SkuService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ import java.util.List;
 public class ProdController {
 
     private final ProdService prodService;
+    private final SkuService skuService;
 
     @ApiOperation("多条件分页查询商品信息")
     @GetMapping("page")
@@ -105,5 +109,12 @@ public class ProdController {
                         .orderByDesc(Prod::getSoldNum)
         );
         return Result.success(prodList);
+    }
+
+    @ApiOperation("根据skuIdList获取sku信息")
+    @GetMapping("getSkuListBySkuIds")
+    public Result<List<Sku>> getSkuListBySkuIds(@RequestParam List<Long> skuIds) {
+        List<Sku> skus = skuService.listByIds(skuIds);
+        return Result.success(skus);
     }
 }

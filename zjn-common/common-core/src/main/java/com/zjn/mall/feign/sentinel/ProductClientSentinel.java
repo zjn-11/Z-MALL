@@ -3,6 +3,7 @@ package com.zjn.mall.feign.sentinel;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Prod;
 import com.zjn.mall.domain.ProdTagReference;
+import com.zjn.mall.domain.Sku;
 import com.zjn.mall.feign.ProductClient;
 import com.zjn.mall.model.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,12 @@ public class ProductClientSentinel implements ProductClient {
     @Override
     public Result<List<Prod>> getProdListByCategoryIds(List<Long> categoryIds) {
         log.error("根据类目id集合查询商品信息集合，接口调用失败！！！");
+        return null;
+    }
+
+    @Override
+    public Result<List<Sku>> getSkuListBySkuIds(List<Long> skuIds) {
+        log.error("根据skuId集合查询sku信息集合，接口调用失败！！！");
         return null;
     }
 }
