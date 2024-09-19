@@ -1,5 +1,6 @@
 package com.zjn.mall.controller;
 
+import com.zjn.mall.domain.CartTotalAmount;
 import com.zjn.mall.domain.CartVo;
 import com.zjn.mall.domain.Prod;
 import com.zjn.mall.model.Result;
@@ -8,9 +9,7 @@ import com.zjn.mall.util.AuthUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,5 +41,12 @@ public class BasketController {
         String openid = AuthUtils.getLoginMemberOpenid();
         CartVo cartVo = basketService.queryWxCartVoInfo(openid);
         return Result.success(cartVo);
+    }
+
+    @ApiOperation("计算会员所选商品价格：包括总额、优惠、合集、运费")
+    @PostMapping("totalPay")
+    public Result<CartTotalAmount> loadSelectedProdPriceByShopIds(@RequestBody List<Long> shopCartIds) {
+        CartTotalAmount cartTotalAmount = basketService.querySelectedProdPriceByShopIds(shopCartIds);
+        return Result.success(cartTotalAmount);
     }
 }

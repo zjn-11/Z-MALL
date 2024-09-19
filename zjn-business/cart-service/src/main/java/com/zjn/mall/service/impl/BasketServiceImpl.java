@@ -8,10 +8,13 @@ import com.zjn.mall.domain.*;
 import com.zjn.mall.ex.handler.BusinessException;
 import com.zjn.mall.feign.ProductClient;
 import com.zjn.mall.model.Result;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,22 +23,24 @@ import java.util.stream.Collectors;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zjn.mall.mapper.BasketMapper;
 import com.zjn.mall.service.BasketService;
+
 /**
- * @ClassName BasketServiceImpl
  * @author 张健宁
+ * @ClassName BasketServiceImpl
  * @Description TODO
  * @createTime 2024年09月19日 10:03:00
  */
 
 @Service
 @RequiredArgsConstructor
-public class BasketServiceImpl extends ServiceImpl<BasketMapper, Basket> implements BasketService{
+public class BasketServiceImpl extends ServiceImpl<BasketMapper, Basket> implements BasketService {
 
     private final BasketMapper basketMapper;
     private final ProductClient productClient;
 
     /**
      * 查询购物车不同商品数量
+     *
      * @param openid
      * @return
      */
@@ -51,6 +56,7 @@ public class BasketServiceImpl extends ServiceImpl<BasketMapper, Basket> impleme
      * 查询购物车商品信息
      * 涉及到三个对象信息：购物车展示对象 -> 购物车店铺对象 -> 购物车商品条目对象
      * CartVo -> ShopCart -> CartItem
+     *
      * @param openid
      * @return
      */
@@ -121,5 +127,67 @@ public class BasketServiceImpl extends ServiceImpl<BasketMapper, Basket> impleme
         cartVo.setShopCarts(shopCartList);
 
         return cartVo;
+    }
+
+    /**
+     * 计算会员所选商品价格：包括总额、优惠、合集、运费
+     * 商品总金额：高于99元免运费，否则需要六元运费
+     * @param shopCartIds
+     * @return
+     */
+    @Override
+    public CartTotalAmount querySelectedProdPriceByShopIds(List<Long> shopCartIds) {
+        CartTotalAmount cartTotalAmount = new CartTotalAmount();
+        // 购物车为空，则直接返回
+        if (CollUtil.isEmpty(shopCartIds)) {
+            return cartTotalAmount;
+        }
+
+        // 先根据id查出购物车记录，在根据记录的sku查出对应商品的sku信息
+        List<Basket> basketList = basketMapper.selectBatchIds(shopCartIds);
+        if (CollUtil.isEmpty(basketList)) {
+            return cartTotalAmount;
+        }
+        List<Long> skuIds = basketList.stream()
+                .map(Basket::getSkuId)
+                .collect(Collectors.toList());
+        Result<List<Sku>> skuResult = productClient.getSkuListBySkuIds(skuIds);
+        if (skuResult.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign：获取商品sku信息失败，请重试！！！");
+        }
+        List<Sku> skuList = skuResult.getData();
+
+        // 根据查询到的sku信息，计算总值
+        List<BigDecimal> totalMoneyList = new ArrayList<>();
+        List<BigDecimal> finalMoneyList = new ArrayList<>();
+
+        basketList.forEach(basket -> {
+            Sku skuTemp = skuList.stream()
+                    .filter(sku -> sku.getSkuId().equals(basket.getSkuId()))
+                    .collect(Collectors.toList()).get(0);
+            Integer prodCount = basket.getProdCount();
+
+            totalMoneyList.add(skuTemp.getOriPrice().multiply(new BigDecimal(prodCount)));
+            finalMoneyList.add(skuTemp.getPrice().multiply(new BigDecimal(prodCount)));
+
+        });
+        BigDecimal totalMoney = totalMoneyList.stream().reduce(BigDecimal::add).get();
+        BigDecimal finalMoney = finalMoneyList.stream().reduce(BigDecimal::add).get();
+
+        cartTotalAmount.setTotalMoney(totalMoney);
+        cartTotalAmount.setFinalMoney(finalMoney);
+
+        // 计算优惠金额
+        BigDecimal subtractMoney = totalMoney.subtract(finalMoney);
+        cartTotalAmount.setSubtractMoney(subtractMoney);
+
+        // 计算运费
+        if (totalMoney.compareTo(new BigDecimal(99)) < 0) {
+            BigDecimal transMoney = new BigDecimal(6);
+            cartTotalAmount.setTransMoney(transMoney);
+            cartTotalAmount.setFinalMoney(finalMoney.add(transMoney));
+        }
+
+        return cartTotalAmount;
     }
 }

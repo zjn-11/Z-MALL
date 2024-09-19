@@ -2,6 +2,7 @@ package com.zjn.mall.service;
 
 import com.zjn.mall.domain.Basket;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zjn.mall.domain.CartTotalAmount;
 import com.zjn.mall.domain.CartVo;
 import com.zjn.mall.domain.Prod;
 
@@ -20,4 +21,6 @@ public interface BasketService extends IService<Basket>{
     Integer queryWxBasketProdCount(String openid);
 
     CartVo queryWxCartVoInfo(String openid);
+
+    CartTotalAmount querySelectedProdPriceByShopIds(List<Long> shopCartIds);
 }
