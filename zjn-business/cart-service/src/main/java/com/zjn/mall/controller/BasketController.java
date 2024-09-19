@@ -57,4 +57,11 @@ public class BasketController {
         Boolean modify = basketService.modifyBasketProdCount(basket);
         return Result.handle(modify);
     }
+
+    @ApiOperation("批量删除购物车记录")
+    @DeleteMapping("deleteItem")
+    public Result<String> removeBasketItemByBasketIds(@RequestBody List<Long> basketIds) {
+        boolean delete = basketService.removeByIds(basketIds);
+        return Result.handle(delete);
+    }
 }
