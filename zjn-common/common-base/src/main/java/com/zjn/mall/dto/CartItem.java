@@ -1,4 +1,4 @@
-package com.zjn.mall.domain;
+package com.zjn.mall.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

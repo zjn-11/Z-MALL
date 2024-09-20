@@ -3,7 +3,9 @@ package com.zjn.mall.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Order;
+import com.zjn.mall.domain.OrderConfirmVo;
 import com.zjn.mall.domain.OrderItem;
+import com.zjn.mall.domain.OrderVo;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.OrderService;
 import com.zjn.mall.vo.OrderStatusCountVO;
@@ -71,5 +73,12 @@ public class OrderController {
                         .eq(Order::getOrderNumber, orderNumber)
         );
         return Result.handle(update);
+    }
+
+    @ApiOperation("小程序：提交订单展示页面")
+    @PostMapping("confirm")
+    public Result<OrderVo> loadWxOrderVo(@RequestBody OrderConfirmVo orderConfirmVo) {
+        OrderVo orderVo = orderService.queryWxOrderVo(orderConfirmVo);
+        return Result.success(orderVo);
     }
 }

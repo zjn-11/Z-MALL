@@ -2,9 +2,8 @@ package com.zjn.mall.service;
 
 import com.zjn.mall.domain.Basket;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zjn.mall.domain.CartTotalAmount;
-import com.zjn.mall.domain.CartVo;
-import com.zjn.mall.domain.Prod;
+import com.zjn.mall.dto.CartTotalAmount;
+import com.zjn.mall.dto.CartVo;
 
 import java.util.List;
 
@@ -25,4 +24,6 @@ public interface BasketService extends IService<Basket>{
     CartTotalAmount querySelectedProdPriceByShopIds(List<Long> shopCartIds);
 
     Boolean modifyBasketProdCount(Basket basket);
+
+    CartVo getCartVoByBasketIds(List<Long> basketIds);
 }

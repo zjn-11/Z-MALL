@@ -6,18 +6,18 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zjn.mall.constants.BusinessEnum;
 import com.zjn.mall.domain.*;
+import com.zjn.mall.dto.CartItem;
+import com.zjn.mall.dto.CartTotalAmount;
+import com.zjn.mall.dto.CartVo;
+import com.zjn.mall.dto.ShopCart;
 import com.zjn.mall.ex.handler.BusinessException;
 import com.zjn.mall.feign.ProductClient;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.util.AuthUtils;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -77,64 +77,15 @@ public class BasketServiceImpl extends ServiceImpl<BasketMapper, Basket> impleme
             return cartVo;
         }
 
-        // 获取购物车中所有的sku
-        List<Long> skuIdList = basketList.stream().map(Basket::getSkuId).collect(Collectors.toList());
-        Result<List<Sku>> skuResult = productClient.getSkuListBySkuIds(skuIdList);
-        if (skuResult.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
-            throw new BusinessException("Feign：获取商品sku信息失败，请重试！！！");
-        }
-        List<Sku> skuList = skuResult.getData();
-
-        // 购物车店铺对象集合
-        List<ShopCart> shopCartList = new ArrayList<>();
-        // 遍历购物车集合，查询出每一行对应的商品信息
-        basketList.forEach(basket -> {
-            // 判断当前购物车记录所属店铺是否存在于shopCartList
-            List<ShopCart> isExistShop = shopCartList.stream()
-                    .filter(shopCart -> shopCart.getShopId().equals(basket.getShopId()))
-                    .collect(Collectors.toList());
-            // 创建购物车商品条目信息，并为其赋值
-            CartItem cartItem = new CartItem();
-
-            cartItem.setBasketId(basket.getBasketId());
-            cartItem.setProdCount(basket.getProdCount());
-
-            Sku skuTemp = skuList.stream()
-                    .filter(sku -> sku.getSkuId().equals(basket.getSkuId()))
-                    .collect(Collectors.toList()).get(0);
-
-            BeanUtil.copyProperties(skuTemp, cartItem);
-
-            if (CollUtil.isEmpty(isExistShop)) {
-                // 则证明该店铺之前没有出现过，所以需要单独创建一个shopCart对象
-                // 创建购物车店铺对象
-                ShopCart shopCart = new ShopCart();
-                // 创建购物车商品条目对象集合
-                ArrayList<CartItem> cartItemList = new ArrayList<>();
-                // 将商品条目添加到集合中
-                cartItemList.add(cartItem);
-                // 将属性添加到购物车店铺对象中
-                shopCart.setShopId(basket.getShopId());
-                shopCart.setShopCartItems(cartItemList);
-                // 将购物车店铺对象添加到列表集合中
-                shopCartList.add(shopCart);
-            } else {
-                // 从之前创建好的购物车店铺对象集合中取出当前店铺对应的对象
-                ShopCart shopCart = isExistShop.get(0);
-                List<CartItem> cartItemList = shopCart.getShopCartItems();
-                // 将商品条目添加到集合中
-                cartItemList.add(cartItem);
-            }
-        });
-
-        cartVo.setShopCarts(shopCartList);
+        // 将购物车对象转为购物车页面展示对象
+        basketToCartVo(basketList, cartVo);
 
         return cartVo;
     }
 
     /**
      * 计算会员所选商品价格：包括总额、优惠、合集、运费
-     * 商品总金额：高于99元免运费，否则需要六元运费
+     * 商品实付金额：高于99元免运费，否则需要六元运费
      * @param shopCartIds
      * @return
      */
@@ -185,7 +136,7 @@ public class BasketServiceImpl extends ServiceImpl<BasketMapper, Basket> impleme
         cartTotalAmount.setSubtractMoney(subtractMoney);
 
         // 计算运费
-        if (totalMoney.compareTo(new BigDecimal(99)) < 0) {
+        if (finalMoney.compareTo(new BigDecimal(99)) < 0) {
             BigDecimal transMoney = new BigDecimal(6);
             cartTotalAmount.setTransMoney(transMoney);
             cartTotalAmount.setFinalMoney(finalMoney.add(transMoney));
@@ -223,5 +174,79 @@ public class BasketServiceImpl extends ServiceImpl<BasketMapper, Basket> impleme
         basket.setCreateTime(new Date());
         basket.setOpenId(openid);
         return basketMapper.insert(basket) > 0;
+    }
+
+    /**
+     * 通过购物车id查询CartVo对象
+     * @param basketIds
+     * @return
+     */
+    @Override
+    public CartVo getCartVoByBasketIds(List<Long> basketIds) {
+        // 购物车展示对象集合
+        CartVo cartVo = new CartVo();
+
+        // 查询会员购物车记录
+        List<Basket> basketList = basketMapper.selectBatchIds(basketIds);
+        if (CollUtil.isEmpty(basketList)) {
+            return cartVo;
+        }
+
+        // 将购物车对象转为购物车页面展示对象
+        basketToCartVo(basketList, cartVo);
+
+        return cartVo;
+    }
+
+    private void basketToCartVo(List<Basket> basketList, CartVo cartVo) {
+        // 获取购物车中所有的sku
+        List<Long> skuIdList = basketList.stream().map(Basket::getSkuId).collect(Collectors.toList());
+        Result<List<Sku>> skuResult = productClient.getSkuListBySkuIds(skuIdList);
+        if (skuResult.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign：获取商品sku信息失败，请重试！！！");
+        }
+        List<Sku> skuList = skuResult.getData();
+
+        // 购物车店铺对象集合
+        List<ShopCart> shopCartList = new ArrayList<>();
+        // 遍历购物车集合，查询出每一行对应的商品信息
+        basketList.forEach(basket -> {
+            // 创建购物车商品条目信息，并为其赋值
+            CartItem cartItem = new CartItem();
+            cartItem.setBasketId(basket.getBasketId());
+            cartItem.setProdCount(basket.getProdCount());
+            Sku skuTemp = skuList.stream()
+                    .filter(sku -> sku.getSkuId().equals(basket.getSkuId()))
+                    .collect(Collectors.toList()).get(0);
+            BeanUtil.copyProperties(skuTemp, cartItem);
+
+            // 判断当前购物车记录所属店铺是否存在于shopCartList
+            List<ShopCart> isExistShop = shopCartList.stream()
+                    .filter(shopCart -> shopCart.getShopId().equals(basket.getShopId()))
+                    .collect(Collectors.toList());
+
+            if (CollUtil.isEmpty(isExistShop)) {
+                // 为空则证明该店铺之前没有出现过，所以需要单独创建一个shopCart对象
+                // 创建购物车店铺对象
+                ShopCart shopCart = new ShopCart();
+                // 创建购物车商品条目对象集合
+                ArrayList<CartItem> cartItemList = new ArrayList<>();
+                // 将商品条目添加到集合中
+                cartItemList.add(cartItem);
+                // 将属性添加到购物车店铺对象中
+                shopCart.setShopId(basket.getShopId());
+                shopCart.setShopCartItems(cartItemList);
+                // 将购物车店铺对象添加到列表集合中
+                shopCartList.add(shopCart);
+            } else {
+                // 从之前创建好的购物车店铺对象集合中取出当前店铺对应的对象
+                ShopCart shopCart = isExistShop.get(0);
+                List<CartItem> cartItemList = shopCart.getShopCartItems();
+                // 将商品条目添加到集合中
+                cartItemList.add(cartItem);
+            }
+        });
+
+        cartVo.setShopCarts(shopCartList);
     }
 }

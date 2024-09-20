@@ -30,4 +30,7 @@ public interface MemberClient {
 
     @GetMapping("admin/user/getMembersByOpenidList")
     Result<List<Member>> getMembersByOpenidList(@RequestParam List<String> openidList);
+
+    @GetMapping("p/address/getMemberDefaultAddrByOpenid")
+    Result<MemberAddr> getMemberDefaultAddrByOpenid(@RequestParam String openid);
 }

@@ -11,7 +11,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zjn.mall.domain.Area;
 import com.zjn.mall.mapper.AreaMapper;
 import com.zjn.mall.service.AreaService;
-import sun.java2d.marlin.ArrayCacheConst;
 
 /**
  * @ClassName AreaServiceImpl

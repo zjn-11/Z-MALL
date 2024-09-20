@@ -37,4 +37,10 @@ public class MemberClientSentinel implements MemberClient {
         log.error("根据openId集合查询会员集合，Feign接口调用失败！！！");
         return null;
     }
+
+    @Override
+    public Result<MemberAddr> getMemberDefaultAddrByOpenid(String openid) {
+        log.error("根据openId查询会员默认收货地址，Feign接口调用失败！！！");
+        return null;
+    }
 }

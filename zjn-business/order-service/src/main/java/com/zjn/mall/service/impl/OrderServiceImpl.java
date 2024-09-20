@@ -9,12 +9,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zjn.mall.constants.AuthConstants;
 import com.zjn.mall.constants.BusinessEnum;
-import com.zjn.mall.domain.MemberAddr;
-import com.zjn.mall.domain.Order;
-import com.zjn.mall.domain.OrderItem;
-import com.zjn.mall.dto.UserAddrDto;
+import com.zjn.mall.domain.*;
+import com.zjn.mall.dto.*;
 import com.zjn.mall.ex.handler.BusinessException;
+import com.zjn.mall.feign.CartClient;
 import com.zjn.mall.feign.MemberClient;
+import com.zjn.mall.feign.ProductClient;
 import com.zjn.mall.mapper.OrderItemMapper;
 import com.zjn.mall.mapper.OrderMapper;
 import com.zjn.mall.model.Result;
@@ -22,12 +22,12 @@ import com.zjn.mall.service.OrderService;
 import com.zjn.mall.util.AuthUtils;
 import com.zjn.mall.vo.OrderStatusCountVO;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.Date;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +44,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final MemberClient memberClient;
+    private final ProductClient productClient;
+    private final CartClient cartClient;
 
     /**
      * 多条件分页查询订单
@@ -239,6 +241,145 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 else
                     order.setOrderItemDtos(orderItemList);
             });
+        }
+    }
+
+    /**
+     * 展示订单详情页面
+     * OrderVo -> ShopOrder -> OrderItem
+     * 订单展示页面 -> 里面有多个店铺 -> 每个店铺都有自己的商品条目信息
+     * @param orderConfirmVo
+     * @return
+     */
+    @Override
+    public OrderVo queryWxOrderVo(OrderConfirmVo orderConfirmVo) {
+        OrderVo orderVo = new OrderVo();
+        String openid = AuthUtils.getLoginMemberOpenid();
+        // 查询会员默认收货地址
+        Result<MemberAddr> addrResult = memberClient.getMemberDefaultAddrByOpenid(openid);
+        if (addrResult.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign接口调用失败：未能获取到默认收货地址信息!");
+        }
+        MemberAddr defultMemberAddr = addrResult.getData();
+        orderVo.setMemberAddr(defultMemberAddr);
+
+        List<Long> basketIds = orderConfirmVo.getBasketIds();
+        if (CollectionUtil.isEmpty(basketIds)) {
+            // 如果为空则说明是来自订单详情页面的提交订单请求
+            productToConfirm(orderConfirmVo.getOrderItem(), orderVo);
+        } else {
+            // 如果不为空则说明是来自购物车页面的提交订单请求
+            cartToConfirm(basketIds, orderVo);
+        }
+        return orderVo;
+    }
+
+    /**
+     * 处理请求来自购物车页面的情况
+     * 这种情况下会有多个店铺，每个店铺都有多个商品，前端传递的是购物车id集合
+     * @param basketIds
+     * @param orderVo
+     */
+    private void cartToConfirm(List<Long> basketIds, OrderVo orderVo) {
+        // 先通过basketIds查出所有的购物车对象
+        Result<CartVo> cartVoResult = cartClient.getCartVoByBasketIds(basketIds);
+        if (cartVoResult.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign接口调用失败：未能获取到购物车商品信息!");
+        }
+        CartVo cartVo = cartVoResult.getData();
+
+        AtomicReference<Integer> totalCount = new AtomicReference<>(0);
+
+        // 将cartVo的属性赋值给orderVo
+        List<ShopCart> shopCarts = cartVo.getShopCarts();
+        List<ShopOrder> shopOrders = new ArrayList<>();
+        shopCarts.forEach(shopCart -> {
+            ShopOrder shopOrder = new ShopOrder();
+            ArrayList<OrderItem> orderItems = new ArrayList<>();
+
+            List<CartItem> shopCartItems = shopCart.getShopCartItems();
+            shopCartItems.forEach(shopcartItem -> {
+                OrderItem orderItem = BeanUtil.copyProperties(shopcartItem, OrderItem.class);
+                orderItem.setCreateTime(new Date());
+                orderItem.setCommSts(0);
+                orderItem.setShopId(shopCart.getShopId());
+                // 计算实际总额
+                BigDecimal finalPrice = shopcartItem.getPrice().multiply(new BigDecimal(shopcartItem.getProdCount()));
+                orderItem.setProductTotalAmount(finalPrice);
+                orderItems.add(orderItem);
+                totalCount.updateAndGet(v -> v + shopcartItem.getProdCount());
+            });
+
+            shopOrder.setShopOrderItems(orderItems);
+            shopOrder.setShopId(shopCart.getShopId());
+
+            shopOrders.add(shopOrder);
+        });
+
+        // 根据id获取价格
+        Result<CartTotalAmount> priceResult = cartClient.loadSelectedProdPriceByShopIds(basketIds);
+        if (priceResult.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign接口调用失败：未能获取到购物车商品价格信息!");
+        }
+        CartTotalAmount cartTotalAmount = priceResult.getData();
+
+        orderVo.setShopCartOrders(shopOrders);
+        orderVo.setTransfee(cartTotalAmount.getTransMoney());
+        orderVo.setTotal(cartTotalAmount.getTotalMoney());
+        orderVo.setActualTotal(cartTotalAmount.getFinalMoney());
+        orderVo.setShopReduce(cartTotalAmount.getSubtractMoney());
+        orderVo.setTotalCount(totalCount.get());
+    }
+
+    /**
+     * 处理请求来自商品详情页面的情况
+     * 这种情况下只会有一个商品，前端会装入orderItem中传递回来
+     * @param orderItem
+     * @param orderVo
+     */
+    private void productToConfirm(OrderItem orderItem, OrderVo orderVo) {
+        ArrayList<ShopOrder> shopOrders = new ArrayList<>();
+        ShopOrder shopOrder = new ShopOrder();
+        ArrayList<OrderItem> orderItems = new ArrayList<>();
+
+        // 查询出sku对象
+        Long skuId = orderItem.getSkuId();
+        Result<List<Sku>> skuResult = productClient.getSkuListBySkuIds(Collections.singletonList(skuId));
+        if (skuResult.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign接口调用失败：未能获取到商品sku信息!");
+        }
+        Sku sku = skuResult.getData().get(0);
+
+        // 购买商品的数量
+        Integer prodCount = orderItem.getProdCount();
+        // 计算总金额
+        BigDecimal totalPrice = sku.getOriPrice().multiply(new BigDecimal(prodCount));
+        // 计算实际总额
+        BigDecimal finalPrice = sku.getPrice().multiply(new BigDecimal(prodCount));
+
+        // 订单商品条目属性赋值
+        orderItem.setCreateTime(new Date());
+        orderItem.setCommSts(0);
+        orderItem.setProductTotalAmount(finalPrice);
+        BeanUtil.copyProperties(sku, orderItem);
+        orderItems.add(orderItem);
+
+        // 订单店铺对象属性赋值
+        shopOrder.setShopId(orderItem.getShopId());
+        shopOrder.setShopOrderItems(orderItems);
+        shopOrders.add(shopOrder);
+
+        // 订单展示对象属性赋值
+        orderVo.setShopCartOrders(shopOrders);
+        orderVo.setTotal(totalPrice);
+        orderVo.setTotalCount(prodCount);
+        BigDecimal shopReduce = totalPrice.subtract(finalPrice);
+        orderVo.setShopReduce(shopReduce);
+        if (finalPrice.compareTo(new BigDecimal(99)) < 0) {
+            orderVo.setTransfee(new BigDecimal(6));
+            orderVo.setActualTotal(finalPrice.add(new BigDecimal(6)));
+        } else {
+            orderVo.setActualTotal(finalPrice);
         }
     }
 }

@@ -3,7 +3,9 @@ package com.zjn.mall.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Order;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zjn.mall.domain.OrderConfirmVo;
 import com.zjn.mall.domain.OrderItem;
+import com.zjn.mall.domain.OrderVo;
 import com.zjn.mall.vo.OrderStatusCountVO;
 
 import java.util.Date;
@@ -30,4 +32,6 @@ public interface OrderService extends IService<Order>{
     Order queryOrderDetailByOrderNumber(String orderNumber);
 
     Boolean receiptMemberOrder(String orderNumber);
+
+    OrderVo queryWxOrderVo(OrderConfirmVo orderConfirmVo);
 }

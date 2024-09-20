@@ -1,9 +1,8 @@
 package com.zjn.mall.controller;
 
 import com.zjn.mall.domain.Basket;
-import com.zjn.mall.domain.CartTotalAmount;
-import com.zjn.mall.domain.CartVo;
-import com.zjn.mall.domain.Prod;
+import com.zjn.mall.dto.CartTotalAmount;
+import com.zjn.mall.dto.CartVo;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.BasketService;
 import com.zjn.mall.util.AuthUtils;
@@ -63,5 +62,12 @@ public class BasketController {
     public Result<String> removeBasketItemByBasketIds(@RequestBody List<Long> basketIds) {
         boolean delete = basketService.removeByIds(basketIds);
         return Result.handle(delete);
+    }
+
+    @ApiOperation("通过购物车id查询CartVo对象")
+    @GetMapping("getCartVoByBasketIds")
+    public Result<CartVo> getCartVoByBasketIds(@RequestParam List<Long> basketIds) {
+        CartVo cartVo = basketService.getCartVoByBasketIds(basketIds);
+        return Result.success(cartVo);
     }
 }

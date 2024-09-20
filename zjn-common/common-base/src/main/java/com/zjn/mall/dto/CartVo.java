@@ -1,5 +1,6 @@
-package com.zjn.mall.domain;
+package com.zjn.mall.dto;
 
+import com.zjn.mall.dto.ShopCart;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

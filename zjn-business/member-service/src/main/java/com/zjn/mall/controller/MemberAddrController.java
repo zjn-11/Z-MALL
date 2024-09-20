@@ -82,4 +82,16 @@ public class MemberAddrController {
         Boolean set = memberAddrService.setDefaultAddr(addrId, openid);
         return Result.handle(set);
     }
+
+    @ApiOperation("根据openid获取会员默认收货地址")
+    @GetMapping("getMemberDefaultAddrByOpenid")
+    public Result<MemberAddr> getMemberDefaultAddrByOpenid(@RequestParam String openid) {
+        MemberAddr memberAddr = memberAddrService.getOne(
+                new LambdaQueryWrapper<MemberAddr>()
+                        .eq(MemberAddr::getOpenId, openid)
+                        .eq(MemberAddr::getCommonAddr, 1)
+        );
+        return Result.success(memberAddr);
+    }
+
 }
