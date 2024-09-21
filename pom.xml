@@ -38,6 +38,8 @@
         <oss.version>3.17.4</oss.version>
         <easy-excel.version>3.3.2</easy-excel.version>
         <dysmsapi.version>3.0.0</dysmsapi.version>
+        <rabbit-mq.version>2.6.7</rabbit-mq.version>
+        <mq-converter.version>2.13.2</mq-converter.version>
     </properties>
 
     <dependencies>
@@ -125,6 +127,18 @@
                 <groupId>com.aliyun</groupId>
                 <artifactId>dysmsapi20170525</artifactId>
                 <version>${dysmsapi.version}</version>
+            </dependency>
+            <!--AMQP依赖，包含RabbitMQ-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-amqp</artifactId>
+                <version>${rabbit-mq.version}</version>
+            </dependency>
+            <!--RabbitMQ的格式转换器-->
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+                <version>${mq-converter.version}</version>
             </dependency>
         </dependencies>
 

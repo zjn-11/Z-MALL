@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zjn.mall.constants.AuthConstants;
 import com.zjn.mall.constants.BusinessEnum;
+import com.zjn.mall.constants.QueueConstants;
 import com.zjn.mall.domain.*;
 import com.zjn.mall.dto.*;
 import com.zjn.mall.ex.handler.BusinessException;
@@ -22,14 +23,12 @@ import com.zjn.mall.model.Result;
 import com.zjn.mall.service.OrderItemService;
 import com.zjn.mall.service.OrderService;
 import com.zjn.mall.util.AuthUtils;
-import com.zjn.mall.vo.OrderStatusCountVO;
+import com.zjn.mall.domain.OrderStatusCountVO;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.jni.Proc;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -54,6 +53,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private final ProductClient productClient;
     private final CartClient cartClient;
     private final Snowflake snowflake;
+    private final RabbitTemplate rabbitTemplate;
 
     /**
      * 多条件分页查询订单
@@ -438,11 +438,50 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         // 保存订单order和order_item
         writOrder(orderVo, orderNumber, openid);
         writeOrderItems(orderVo, orderNumber);
+
+        // 设置超时时间为10s方便测试
+        OrderDelayDto orderDelayDto = new OrderDelayDto(orderNumber, changeStock);
+        rabbitTemplate.convertAndSend(
+                QueueConstants.DELAY_EXCHANGE_NAME,
+                QueueConstants.DELAY_ORDER_KEY,
+                orderDelayDto,
+                message -> {
+                    message.getMessageProperties().setDelay(10 * 1000);
+                    return message;
+                }
+        );
+
         return orderNumber;
     }
 
     /**
+     * 取消订单
+     * 1. 修改订单状态
+     * 2. 回滚库存
+     * @param orderDelayDto
+     */
+    @Override
+    @Transactional(rollbackFor = RuntimeException.class)
+    public void cancelOrder(OrderDelayDto orderDelayDto) {
+        String orderNumber = orderDelayDto.getOrderNumber();
+        ChangeStock changeStock = orderDelayDto.getChangeStock();
+        Order order = getOne(
+                new LambdaQueryWrapper<Order>()
+                        .eq(Order::getOrderNumber, orderNumber)
+        );
+        order.setCancelTime(new Date());
+        order.setUpdateTime(new Date());
+        order.setStatus(6);
+        order.setCloseType(1);
+
+        orderMapper.updateById(order);
+
+        changeStocksByChangeStock(changeStock);
+    }
+
+    /**
      * 保存订单明细order_item
+     *
      * @param orderVo
      * @param orderNumber
      */
@@ -463,6 +502,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     /**
      * 保存订单order
+     *
      * @param orderVo
      */
     private void writOrder(OrderVo orderVo, String orderNumber, String openid) {
@@ -488,6 +528,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     /**
      * 使用雪花算法生成订单号
+     *
      * @return
      */
     private String generateOrderNumber() {
@@ -562,6 +603,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     /**
      * 根据变更对象修改商品库存数量
+     *
      * @param changeStock
      */
     private void changeStocksByChangeStock(ChangeStock changeStock) {

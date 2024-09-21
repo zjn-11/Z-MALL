@@ -4,18 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Order;
 import com.zjn.mall.domain.OrderConfirmVo;
-import com.zjn.mall.domain.OrderItem;
 import com.zjn.mall.domain.OrderVo;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.OrderService;
-import com.zjn.mall.vo.OrderStatusCountVO;
+import com.zjn.mall.domain.OrderStatusCountVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author 张健宁

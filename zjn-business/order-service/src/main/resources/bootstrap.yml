@@ -16,6 +16,7 @@ spring:
         group: ${spring.cloud.nacos.discovery.group}
         shared-configs:
           - datasource.yaml
+          - shared-mq.yaml
   profiles:
     active: dev
 feign:
