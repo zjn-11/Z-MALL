@@ -8,7 +8,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zjn.mall.domain.ProdTag;
 import com.zjn.mall.domain.ProdTagReference;
 import com.zjn.mall.domain.Sku;
+import com.zjn.mall.dto.ChangeStock;
+import com.zjn.mall.dto.ProdChange;
+import com.zjn.mall.dto.SkuChange;
 import com.zjn.mall.ex.handler.BusinessException;
+import com.zjn.mall.mapper.SkuMapper;
 import com.zjn.mall.service.ProdTagReferenceService;
 import com.zjn.mall.service.ProdTagService;
 import com.zjn.mall.service.SkuService;
@@ -40,6 +44,7 @@ public class ProdServiceImpl extends ServiceImpl<ProdMapper, Prod> implements Pr
     private final ProdMapper prodMapper;
     private final ProdTagReferenceService prodTagReferenceService;
     private final SkuService skuService;
+    private final SkuMapper skuMapper;
 
     /**
      * 新增商品信息
@@ -184,5 +189,43 @@ public class ProdServiceImpl extends ServiceImpl<ProdMapper, Prod> implements Pr
                 new LambdaQueryWrapper<Sku>()
                         .eq(Sku::getProdId, prodId)
         );
+    }
+
+    /**
+     * 根据库存变更对象修改商品和sku库存数量
+     * 通过cas来保证更新服务
+     * @param changeStock
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = RuntimeException.class)
+    public Boolean changeProdAndSkuStock(ChangeStock changeStock) {
+        boolean flag = false;
+        List<SkuChange> skuChangeList = changeStock.getSkuChangeList();
+        for (SkuChange skuChange : skuChangeList) {
+            Long skuId = skuChange.getSkuId();
+            Sku sku = skuMapper.selectById(skuId);
+            // 采用cas实现库存更新
+            Integer count = skuMapper.updateSkuStock(skuId, skuChange.getCount(), sku.getVersion());
+            if (count.equals(1)) {
+                flag = true;
+            } else {
+                throw new RuntimeException("Sku库存扣减失败！");
+            }
+        }
+
+        List<ProdChange> prodChangeList = changeStock.getProdChangeList();
+        for (ProdChange prodChange : prodChangeList) {
+            Long prodId = prodChange.getProdId();
+            Prod prod = prodMapper.selectById(prodId);
+            // 采用cas实现库存更新
+            Integer count = prodMapper.updateProdStock(prodId, prodChange.getCount(), prod.getVersion());
+            if (count.equals(1)) {
+                flag = true;
+            } else {
+                throw new RuntimeException("Prod库存扣件失败！");
+            }
+        }
+        return flag;
     }
 }

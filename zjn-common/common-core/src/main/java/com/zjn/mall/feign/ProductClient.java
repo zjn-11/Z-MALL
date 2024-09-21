@@ -1,15 +1,19 @@
 package com.zjn.mall.feign;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.zjn.mall.config.DefaultFeignConfig;
 import com.zjn.mall.config.FeignInterceptor;
 import com.zjn.mall.domain.Prod;
 import com.zjn.mall.domain.ProdTagReference;
 import com.zjn.mall.domain.Sku;
+import com.zjn.mall.dto.ChangeStock;
 import com.zjn.mall.feign.sentinel.ProductClientSentinel;
 import com.zjn.mall.model.Result;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -41,4 +45,7 @@ public interface ProductClient {
 
     @GetMapping("prod/prod/getSkuListBySkuIds")
     Result<List<Sku>> getSkuListBySkuIds(@RequestParam List<Long> skuIds);
+
+    @PostMapping("prod/prod/changeProdAndSkuStock")
+    Result<Boolean> changeProdAndSkuStock(@RequestBody ChangeStock changeStock);
 }

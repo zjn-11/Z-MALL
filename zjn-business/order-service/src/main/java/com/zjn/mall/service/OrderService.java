@@ -34,4 +34,6 @@ public interface OrderService extends IService<Order>{
     Boolean receiptMemberOrder(String orderNumber);
 
     OrderVo queryWxOrderVo(OrderConfirmVo orderConfirmVo);
+
+    String submitOrder(OrderVo orderVo);
 }

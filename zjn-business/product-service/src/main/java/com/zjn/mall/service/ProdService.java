@@ -2,7 +2,9 @@ package com.zjn.mall.service;
 
 import com.zjn.mall.domain.Prod;
 import com.baomidou.mybatisplus.extension.service.IService;
-    /**
+import com.zjn.mall.dto.ChangeStock;
+
+/**
  * @ClassName ProdService
  * @author 张健宁
  * @Description TODO
@@ -18,4 +20,6 @@ public interface ProdService extends IService<Prod>{
     Boolean modifyProdInfo(Prod prod);
 
     Boolean removeProdById(Long id);
+
+    Boolean changeProdAndSkuStock(ChangeStock changeStock);
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Prod;
 import com.zjn.mall.domain.ProdTagReference;
 import com.zjn.mall.domain.Sku;
+import com.zjn.mall.dto.ChangeStock;
 import com.zjn.mall.feign.ProductClient;
 import com.zjn.mall.model.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,12 @@ public class ProductClientSentinel implements ProductClient {
     @Override
     public Result<List<Sku>> getSkuListBySkuIds(List<Long> skuIds) {
         log.error("根据skuId集合查询sku信息集合，接口调用失败！！！");
+        return null;
+    }
+
+    @Override
+    public Result<Boolean> changeProdAndSkuStock(ChangeStock changeStock) {
+        log.error("修改商品和sku库存数量，接口调用失败！！！");
         return null;
     }
 }

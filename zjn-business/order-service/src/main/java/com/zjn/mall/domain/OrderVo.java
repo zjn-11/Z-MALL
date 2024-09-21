@@ -47,6 +47,7 @@ public class OrderVo {
     @ApiModelProperty("小计")
     private BigDecimal actualTotal = BigDecimal.ZERO;
 
-
+    @ApiModelProperty("订单来源：0是商品详情页；1是购物车；")
+    private Integer source = 0;
 
 }

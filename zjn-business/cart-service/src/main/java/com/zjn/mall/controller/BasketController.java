@@ -1,5 +1,6 @@
 package com.zjn.mall.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zjn.mall.domain.Basket;
 import com.zjn.mall.dto.CartTotalAmount;
 import com.zjn.mall.dto.CartVo;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author 张健宁
@@ -69,5 +72,18 @@ public class BasketController {
     public Result<CartVo> getCartVoByBasketIds(@RequestParam List<Long> basketIds) {
         CartVo cartVo = basketService.getCartVoByBasketIds(basketIds);
         return Result.success(cartVo);
+    }
+
+    @ApiOperation("通过openid以及skuId集合删除购物车对象")
+    @DeleteMapping("removeBasketsByOpenidAndSkuId")
+    public Result<String> removeBasketsByOpenidAndSkuId(@RequestBody Map<String, Object> param) {
+        String openid = (String) param.get("openid");
+        List<Long> skuIds = (List<Long>) param.get("skuIds");
+        boolean remove = basketService.remove(
+                new LambdaQueryWrapper<Basket>()
+                        .eq(Basket::getOpenId, openid)
+                        .in(Basket::getSkuId, skuIds)
+        );
+        return Result.handle(remove);
     }
 }

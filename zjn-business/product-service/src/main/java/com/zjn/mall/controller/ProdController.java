@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zjn.mall.domain.Prod;
 import com.zjn.mall.domain.ProdComm;
 import com.zjn.mall.domain.Sku;
+import com.zjn.mall.dto.ChangeStock;
 import com.zjn.mall.model.Result;
 import com.zjn.mall.service.ProdService;
 import com.zjn.mall.service.SkuService;
@@ -116,5 +117,12 @@ public class ProdController {
     public Result<List<Sku>> getSkuListBySkuIds(@RequestParam List<Long> skuIds) {
         List<Sku> skus = skuService.listByIds(skuIds);
         return Result.success(skus);
+    }
+
+    @ApiOperation("根据库存变更对象修改商品和sku库存数量")
+    @PostMapping("changeProdAndSkuStock")
+    public Result<Boolean> changeProdAndSkuStock(@RequestBody ChangeStock changeStock) {
+        Boolean change = prodService.changeProdAndSkuStock(changeStock);
+        return Result.success(change);
     }
 }

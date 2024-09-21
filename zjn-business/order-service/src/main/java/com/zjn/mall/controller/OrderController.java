@@ -81,4 +81,11 @@ public class OrderController {
         OrderVo orderVo = orderService.queryWxOrderVo(orderConfirmVo);
         return Result.success(orderVo);
     }
+
+    @ApiOperation("会员提交订单")
+    @PostMapping("submit")
+    public Result<String> submitOrder(@RequestBody OrderVo orderVo) {
+        String orderNumber = orderService.submitOrder(orderVo);
+        return Result.success(orderNumber);
+    }
 }

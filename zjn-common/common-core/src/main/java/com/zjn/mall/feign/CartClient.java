@@ -7,12 +7,10 @@ import com.zjn.mall.dto.CartVo;
 import com.zjn.mall.feign.sentinel.CartClientSentinel;
 import com.zjn.mall.model.Result;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 张健宁
@@ -28,4 +26,7 @@ public interface CartClient {
 
     @PostMapping("/p/shopCart/totalPay")
     Result<CartTotalAmount> loadSelectedProdPriceByShopIds(@RequestBody List<Long> shopCartIds);
+
+    @DeleteMapping("/p/shopCart/removeBasketsByOpenidAndSkuId")
+    Result<String> removeBasketsByOpenidAndSkuId(@RequestBody Map<String, Object> param);
 }

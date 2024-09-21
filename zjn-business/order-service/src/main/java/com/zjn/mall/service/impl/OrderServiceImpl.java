@@ -3,6 +3,7 @@ package com.zjn.mall.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,12 +19,17 @@ import com.zjn.mall.feign.ProductClient;
 import com.zjn.mall.mapper.OrderItemMapper;
 import com.zjn.mall.mapper.OrderMapper;
 import com.zjn.mall.model.Result;
+import com.zjn.mall.service.OrderItemService;
 import com.zjn.mall.service.OrderService;
 import com.zjn.mall.util.AuthUtils;
 import com.zjn.mall.vo.OrderStatusCountVO;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.jni.Proc;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -43,13 +49,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+    private final OrderItemService orderItemService;
     private final MemberClient memberClient;
     private final ProductClient productClient;
     private final CartClient cartClient;
+    private final Snowflake snowflake;
 
     /**
      * 多条件分页查询订单
      * 可以查询所有状态的订单，包括已删除的订单
+     *
      * @param orderPage
      * @param orderNumber
      * @param status
@@ -141,6 +150,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     /**
      * 多条件分页查询会员的订单
      * 需要排除掉被删除订单，即只需要deleteStatus = 0 的订单
+     *
      * @param orderPage
      * @param status
      * @return
@@ -248,6 +258,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
      * 展示订单详情页面
      * OrderVo -> ShopOrder -> OrderItem
      * 订单展示页面 -> 里面有多个店铺 -> 每个店铺都有自己的商品条目信息
+     *
      * @param orderConfirmVo
      * @return
      */
@@ -269,6 +280,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             productToConfirm(orderConfirmVo.getOrderItem(), orderVo);
         } else {
             // 如果不为空则说明是来自购物车页面的提交订单请求
+            orderVo.setSource(1);
             cartToConfirm(basketIds, orderVo);
         }
         return orderVo;
@@ -277,6 +289,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     /**
      * 处理请求来自购物车页面的情况
      * 这种情况下会有多个店铺，每个店铺都有多个商品，前端传递的是购物车id集合
+     *
      * @param basketIds
      * @param orderVo
      */
@@ -334,6 +347,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     /**
      * 处理请求来自商品详情页面的情况
      * 这种情况下只会有一个商品，前端会装入orderItem中传递回来
+     *
      * @param orderItem
      * @param orderVo
      */
@@ -380,6 +394,184 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             orderVo.setActualTotal(finalPrice.add(new BigDecimal(6)));
         } else {
             orderVo.setActualTotal(finalPrice);
+        }
+    }
+
+    /**
+     * 会员提交订单:
+     * 1 判断订单请求来源：
+     * 1.1 来自购物车，需要删除购物车中对应信息
+     * 1.2 来自商品详情页面
+     * 2 修改prod和sku库存数量
+     * 3 写订单
+     * 3.1 写订单表order
+     * 3.2 写订单条目表order_item
+     * 4 通过消息机制实现超时未支付
+     *
+     * @param orderVo
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = RuntimeException.class)
+    public String submitOrder(OrderVo orderVo) {
+        String openid = AuthUtils.getLoginMemberOpenid();
+        // 移除购物车信息
+        if (orderVo.getSource().equals(1)) {
+            // 请求来自购物车
+            // 删除会员选中的购物车商品信息
+            clearMemberCheckedBasket(openid, orderVo);
+        }
+
+        // 扣件库存
+        ChangeStock changeStock = getChangeStockObject(orderVo);
+        // 将库存更新量变为负，实现扣减
+        changeStock.getSkuChangeList().forEach(skuChange -> {
+            skuChange.setCount(skuChange.getCount() * -1);
+        });
+        changeStock.getProdChangeList().forEach(prodChange -> {
+            prodChange.setCount(prodChange.getCount() * -1);
+        });
+        changeStocksByChangeStock(changeStock);
+
+        // 生成唯一的订单号
+        String orderNumber = generateOrderNumber();
+        // 保存订单order和order_item
+        writOrder(orderVo, orderNumber, openid);
+        writeOrderItems(orderVo, orderNumber);
+        return orderNumber;
+    }
+
+    /**
+     * 保存订单明细order_item
+     * @param orderVo
+     * @param orderNumber
+     */
+    private void writeOrderItems(OrderVo orderVo, String orderNumber) {
+        List<ShopOrder> shopCartOrders = orderVo.getShopCartOrders();
+        ArrayList<OrderItem> allOrderItem = new ArrayList<>();
+        shopCartOrders.forEach(shopOrder -> {
+            List<OrderItem> orderItems = shopOrder.getShopOrderItems();
+            orderItems.forEach(orderItem -> {
+                orderItem.setOrderNumber(orderNumber);
+            });
+            allOrderItem.addAll(orderItems);
+        });
+        if (!orderItemService.saveBatch(allOrderItem)) {
+            throw new BusinessException("订单明细创建失败，请重试！");
+        }
+    }
+
+    /**
+     * 保存订单order
+     * @param orderVo
+     */
+    private void writOrder(OrderVo orderVo, String orderNumber, String openid) {
+        Order order = new Order();
+        order.setOpenId(openid);
+        order.setAddrOrderId(orderVo.getMemberAddr().getAddrId());
+        order.setOrderNumber(orderNumber);
+        order.setTotalMoney(orderVo.getTotal());
+        order.setActualTotal(orderVo.getActualTotal());
+        order.setRemarks(orderVo.getRemark());
+        order.setStatus(1);
+        order.setFreightAmount(orderVo.getTransfee());
+        order.setProductNums(orderVo.getTotalCount());
+        order.setCreateTime(new Date());
+        order.setUpdateTime(new Date());
+        order.setIsPayed(0);
+        order.setDeleteStatus(0);
+        order.setReduceAmount(orderVo.getShopReduce());
+        if (orderMapper.insert(order) <= 0) {
+            throw new BusinessException("订单创建失败，请重试！");
+        }
+    }
+
+    /**
+     * 使用雪花算法生成订单号
+     * @return
+     */
+    private String generateOrderNumber() {
+        return snowflake.nextIdStr();
+    }
+
+    /**
+     * 删除会员购买所选的商品在购物车中的记录
+     *
+     * @param openid
+     * @param orderVo
+     */
+    private void clearMemberCheckedBasket(String openid, OrderVo orderVo) {
+        // 获取所有商品的sku集合
+        ArrayList<Long> skuIdList = new ArrayList<>();
+        List<ShopOrder> shopCartOrders = orderVo.getShopCartOrders();
+        shopCartOrders.forEach(shopOrder -> {
+            List<OrderItem> shopOrderItems = shopOrder.getShopOrderItems();
+            List<Long> skuIds = shopOrderItems.stream().map(OrderItem::getSkuId).collect(Collectors.toList());
+            skuIdList.addAll(skuIds);
+        });
+        Map<String, Object> param = new HashMap<>();
+        param.put("openid", openid);
+        param.put("skuIds", skuIdList);
+        // 删除购物车对象
+        Result<String> removeResult = cartClient.removeBasketsByOpenidAndSkuId(param);
+        if (removeResult.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign接口调用失败：未能移除购物车商品信息信息!");
+        }
+    }
+
+    /**
+     * 获取商品库存数量变更对象
+     * ChangeStock: SkuChangeList, ProdChangeList
+     * SkuChange: skuId, skuCount
+     * ProdChange: prodId, prodCount
+     *
+     * @param orderVo
+     */
+    private ChangeStock getChangeStockObject(OrderVo orderVo) {
+        // 封装商品数量变化集合
+        ArrayList<ProdChange> prodChanges = new ArrayList<>();
+        ArrayList<SkuChange> skuChanges = new ArrayList<>();
+
+        List<ShopOrder> shopCartOrders = orderVo.getShopCartOrders();
+        shopCartOrders.forEach(shopOrder -> {
+            List<OrderItem> orderItems = shopOrder.getShopOrderItems();
+            orderItems.forEach(orderItem -> {
+                SkuChange skuChange = new SkuChange();
+                skuChange.setSkuId(orderItem.getSkuId());
+                skuChange.setCount(orderItem.getProdCount());
+                skuChanges.add(skuChange);
+
+                // 要判断商品id之前是否出现过
+                List<ProdChange> BeforeProdChange = prodChanges.stream().filter(prodChange1 -> prodChange1.getProdId().equals(orderItem.getProdId())).collect(Collectors.toList());
+                if (CollectionUtil.isEmpty(BeforeProdChange)) {
+                    // 之前没有出现过
+                    ProdChange prodChange = new ProdChange();
+                    prodChange.setProdId(orderItem.getProdId());
+                    prodChange.setCount(orderItem.getProdCount());
+                    prodChanges.add(prodChange);
+                } else {
+                    ProdChange prodChange = BeforeProdChange.get(0);
+                    int finalCount = prodChange.getCount() + orderItem.getProdCount();
+                    prodChange.setCount(finalCount);
+                }
+            });
+        });
+
+        return new ChangeStock(skuChanges, prodChanges);
+    }
+
+    /**
+     * 根据变更对象修改商品库存数量
+     * @param changeStock
+     */
+    private void changeStocksByChangeStock(ChangeStock changeStock) {
+        Result<Boolean> changeResult = productClient.changeProdAndSkuStock(changeStock);
+        if (changeResult.getCode().equals(BusinessEnum.OPERATION_FAIL.getCode())) {
+            throw new BusinessException("Feign接口调用失败：未能成功扣件库存!");
+        }
+        Boolean flag = changeResult.getData();
+        if (!flag) {
+            throw new BusinessException("未能成功扣件库存!");
         }
     }
 }
