@@ -35,7 +35,7 @@ import java.io.PrintWriter;
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
-@Order(99)
+@Order(100)
 public class ResourceServerConfig extends WebSecurityConfigurerAdapter {
 
     private final TokenTranslationFilter tokenTranslationFilter;

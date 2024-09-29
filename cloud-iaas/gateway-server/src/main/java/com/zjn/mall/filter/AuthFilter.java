@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -44,6 +43,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
     /**
      * 对请求路径进行判断，并进行验证
+     *
      * @param exchange
      * @param chain
      * @return
@@ -58,9 +58,9 @@ public class AuthFilter implements GlobalFilter, Ordered {
         String token = null;
         String authorization = request.getHeaders().getFirst(AuthConstants.AUTHORIZATION);
         if (StringUtils.hasText(authorization)) {
+            // 只判断Authorization是否有值，具体的校验放到oncePerRequest中完成
             token = authorization.replaceFirst(AuthConstants.BEARER, "");
-            if (StrUtil.isNotBlank(token) &&
-                    Boolean.TRUE.equals(redisTemplate.hasKey(AuthConstants.LOGIN_TOKEN_PREFIX + token))) {
+            if (StrUtil.isNotBlank(token)) {
                 return chain.filter(exchange);
             }
         }

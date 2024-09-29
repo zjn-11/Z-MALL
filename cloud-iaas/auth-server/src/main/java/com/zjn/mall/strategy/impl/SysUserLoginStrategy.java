@@ -37,6 +37,7 @@ public class SysUserLoginStrategy implements LoginStrategy {
             Set<String> perms = loginSysUserMapper.selectPermsByUserId(loginSysUser.getUserId());
             SecurityUser securityUser = new SecurityUser();
             securityUser.setUserId(loginSysUser.getUserId());
+            securityUser.setUsername(loginSysUser.getUsername());
             securityUser.setPassword(loginSysUser.getPassword());
             securityUser.setStatus(loginSysUser.getStatus());
             securityUser.setPassword(loginSysUser.getPassword());
